@@ -35,6 +35,11 @@ Void test_point_geometry() {
     ARIADNE_TEST_EQUALS(zero.dimension(),0u);
     Point<FloatDP> generated(2u,[](SizeType i){return FloatDP(static_cast<Int>(i),dp);});
     Point<Real> generated_real(2u,[](SizeType i){return Real(static_cast<Int>(i));});
+    // Exercise the public initializer-list constructor with Real coordinates.
+    Point<Real> listed({Real(1),Real(2)});
+    ARIADNE_TEST_EQUALS(listed.dimension(),2u);
+    ARIADNE_TEST_ASSERT(decide(listed[0]==Real(1)));
+    ARIADNE_TEST_ASSERT(decide(listed[1]==Real(2)));
     ARIADNE_TEST_EQUALS(generated[1],FloatDP(1,dp));
     ARIADNE_TEST_ASSERT(decide(generated_real[1]==1));
     auto bounds=pt.bounding_box();
