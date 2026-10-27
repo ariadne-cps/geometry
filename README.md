@@ -5,12 +5,13 @@
 [![Windows Status](https://github.com/ariadne-cps/geometry/actions/workflows/win.yml/badge.svg)](https://github.com/ariadne-cps/geometry/actions/workflows/win.yml)
 [![Sanitizers Status](https://github.com/ariadne-cps/geometry/actions/workflows/sanitizers.yml/badge.svg)](https://github.com/ariadne-cps/geometry/actions/workflows/sanitizers.yml)
 [![Coverage Status](https://github.com/ariadne-cps/geometry/actions/workflows/coverage.yml/badge.svg)](https://github.com/ariadne-cps/geometry/actions/workflows/coverage.yml)
+[![codecov](https://codecov.io/gh/ariadne-cps/geometry/branch/main/graph/badge.svg)](https://codecov.io/gh/ariadne-cps/geometry)
 
 Standalone C++20 geometry layer of Ariadne: points, boxes, geometric set interfaces and wrappers, validated predicates and finite unions of intervals.
 
 ## Dependencies
 
-Geometry depends directly on [ariadne-cps/algebra](https://github.com/ariadne-cps/algebra), and on [ariadne-cps/configuration](https://github.com/ariadne-cps/configuration) for shared build configuration. Algebra provides Interval, Numeric and other lower libraries transitively. Geometry does not depend on Function, Solving, Set, Paving or BDD.
+Geometry depends directly on [ariadne-cps/algebra](https://github.com/ariadne-cps/algebra), and on [ariadne-cps/configuration](https://github.com/ariadne-cps/configuration) for shared build configuration. Algebra provides Interval, Numeric and other lower libraries transitively.
 
 ## Build and test
 
@@ -36,10 +37,6 @@ The C++ library installs as `ariadne-geometry` together with the public headers 
 
 - C++: `tutorials/tutorial_geometry/tutorial_geometry.cpp` (build separately against an installed Geometry library).
 - Python: `python/tutorials/tutorial_geometry.py`.
-
-## Origin and layering
-
-The geometry-owned files were extracted from `ariadne-cps/kernel`, branch `split`. Compatibility forwarding headers into Set and Paving have intentionally not been copied. The kernel dependency substitution is a separate subsequent step.
 
 ## License
 
