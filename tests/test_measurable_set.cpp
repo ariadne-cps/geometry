@@ -42,6 +42,31 @@ template<class X> inline OutputStream& operator<<(OutputStream& os, Sequence<X> 
     SequenceWriter writer(4u); return os << writer(seq);
 }
 
+Void test_lower_measurable_set_measurement() {
+    using Intervals=UnionOfIntervals<Dyadic>;
+    const Intervals intervals({{0,0.5_dy},{1,2.5_dy}});
+    ValidatedLowerMeasurableSet<Real> wrapped(intervals);
+
+    // The public handle must delegate both whole-set and restricted measures.
+    const auto total=wrapped.measure();
+    const auto restricted=wrapped.measure_in(ExactIntervalType(0.25_x,2.25_x));
+    ARIADNE_TEST_EQUALS(total.get(dp).raw(),FloatDP(2,dp));
+    ARIADNE_TEST_EQUALS(restricted.get(dp).raw(),FloatDP(1.5_dy,dp));
+
+    std::ostringstream written;
+    written << wrapped;
+    ARIADNE_TEST_ASSERT(!written.str().empty());
+
+    // Error bounds are clamped to [0, measure(set)] before subtraction.
+    using Model=LowerMeasurableSetModel<Intervals,Dyadic>;
+    const Model partial(intervals,Dyadic(0.5_dy));
+    const Model excess(intervals,Dyadic(3));
+    const Model negative(intervals,Dyadic(-1));
+    ARIADNE_TEST_EQUALS(measure(partial),PositiveDyadic(1.5_dy));
+    ARIADNE_TEST_EQUALS(measure(excess),PositiveDyadic(0u));
+    ARIADNE_TEST_EQUALS(measure(negative),PositiveDyadic(2u));
+}
+
 class TestMeasurableSet
 {
   public:
@@ -55,6 +80,7 @@ Void TestMeasurableSet::test()
 {
     Dyadic::set_default_writer(DecimalWriter());
     ARIADNE_TEST_CALL(test_scalar_set());
+    ARIADNE_TEST_CALL(test_lower_measurable_set_measurement());
     ARIADNE_TEST_EQUALS(exp2(Integer(-3)).exponent(),exp2(-3).exponent());
     ARIADNE_TEST_FAIL(exp2(Integer("18446744073709551616")));
 }
