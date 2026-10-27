@@ -175,6 +175,33 @@ Void test_box_parsing() {
     ARIADNE_TEST_ASSERT(same(spaced,ExactBoxType({{0.0_x,1.0_x},{2.0_x,3.0_x}})));
 }
 
+Void test_box_construction_and_widening() {
+    const ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
+    const Vector<ExactIntervalType> components{box[0],box[1]};
+    ARIADNE_TEST_ASSERT(same(ExactBoxType(components),box));
+    ARIADNE_TEST_ASSERT(same(ExactBoxType::unit_box(2u),ExactBoxType({{-1.0_x,1.0_x},{-1.0_x,1.0_x}})));
+    ARIADNE_TEST_EQUALS(ExactBoxType::unit_box(0u).dimension(),0u);
+    ARIADNE_TEST_ASSERT(midpoint(box)==Point<FloatDP>({1.0_x,3.0_x},dp));
+
+    const ApproximateBoxType approximate(box);
+    ARIADNE_TEST_ASSERT(same(cast_exact_box(approximate),box));
+    ARIADNE_TEST_EQUALS(cast_exact_box(ApproximateBoxType(0u)).dimension(),0u);
+    const Vector<FloatDPBounds> bounds({{0.0_x,2.0_x},{1.0_x,5.0_x}},dp);
+    ARIADNE_TEST_ASSERT(same(cast_exact_box(bounds),box));
+    ARIADNE_TEST_EQUALS(cast_exact_box(Vector<FloatDPBounds>(0u,dp)).dimension(),0u);
+
+    const UpperBoxType upper(box);
+    const auto expanded=widen(upper,ValidatedUpperNumber(1));
+    ARIADNE_TEST_ASSERT(same(expanded,UpperBoxType({{-1.0_x,3.0_x},{0.0_x,6.0_x}})));
+    // Default widening includes each original endpoint, even when rounding
+    // absorbs the tiny increment at a nonzero endpoint.
+    const auto rounded_box=widen(upper);
+    ARIADNE_TEST_EQUALS(rounded_box.dimension(),box.dimension());
+    ARIADNE_TEST_ASSERT(definitely(subset(box,cast_exact_box(rounded_box))));
+    ARIADNE_TEST_ASSERT(rounded_box[0].lower_bound().raw()<FloatDP(0,dp));
+    ARIADNE_TEST_EQUALS(widen(UpperBoxType(0u)).dimension(),0u);
+}
+
 Void test_box_operations() {
     ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
     ExactBoxType other{{-1.0_x,1.0_x},{2.0_x,3.0_x}};
@@ -273,6 +300,7 @@ Void test_box_operations() {
 }
 
 int main() {
+    ARIADNE_TEST_CALL(test_box_construction_and_widening());
     ARIADNE_TEST_CALL(test_box_operations());
     ARIADNE_TEST_CALL(test_box_parsing());
     TestBoxType<FloatDPExactBox>().test();
