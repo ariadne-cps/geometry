@@ -47,6 +47,14 @@ template<class C> Void check_set_adapter() {
     ARIADNE_TEST_EQUALS(direct.str(),expected.str());
 }
 
+// These short identifiers are part of the predicate adapters' diagnostic API.
+Void test_predicate_operation_codes() {
+    ARIADNE_TEST_EQUALS(std::string(Overlap{}.code()),std::string("overlap"));
+    ARIADNE_TEST_EQUALS(std::string(Separated{}.code()),std::string("separated"));
+    ARIADNE_TEST_EQUALS(std::string(Inside{}.code()),std::string("inside"));
+    ARIADNE_TEST_EQUALS(std::string(Covers{}.code()),std::string("covers"));
+}
+
 Void test_set_adapters() {
     ARIADNE_TEST_CALL((check_set_adapter<OpenSet<ValidatedTag,RealVector>>()));
     ARIADNE_TEST_CALL((check_set_adapter<ClosedSet<ValidatedTag,RealVector>>()));
@@ -80,5 +88,6 @@ Void test_set_adapters() {
 }
 Int main() {
     ARIADNE_TEST_CALL(test_set_adapters());
+    ARIADNE_TEST_CALL(test_predicate_operation_codes());
     return ARIADNE_TEST_FAILURES;
 }
