@@ -112,8 +112,34 @@ Void test_floating_interval_union() {
     UnionOfIntervals<Real> converted(exact);
     ARIADNE_TEST_EQUALS(converted.size(),1u);
 }
+Void test_multiprecision_interval_union_ordering_and_compaction() {
+    const MultiplePrecision precision(128);
+    auto make=[&](InitializerList<DyadicInterval> intervals) {
+        return UnionOfIntervals<FloatMP>(intervals,precision);
+    };
+
+    // Compare different lower bounds and both orders of equal lower bounds.
+    auto shorter=make({{0,1}});
+    auto longer=make({{0,2}});
+    auto later=make({{3,4}});
+    LowerUpperBoundLess less;
+    ARIADNE_TEST_ASSERT(less(*shorter.begin(),*later.begin()));
+    ARIADNE_TEST_ASSERT(!less(*later.begin(),*shorter.begin()));
+    ARIADNE_TEST_ASSERT(less(*shorter.begin(),*longer.begin()));
+    ARIADNE_TEST_ASSERT(!less(*longer.begin(),*shorter.begin()));
+    ARIADNE_TEST_ASSERT(!less(*shorter.begin(),*shorter.begin()));
+
+    // The first two intervals merge and the disjoint last interval moves.
+    auto normalized=make({{3,4},{0.5_dy,2},{0,1}});
+    ARIADNE_TEST_EQUALS(normalized.size(),2u);
+    ARIADNE_TEST_EQUALS(normalized.measure().upper().raw(),FloatMP(3,precision));
+    ARIADNE_TEST_EQUALS(normalized.begin()->lower_bound(),shorter.begin()->lower_bound());
+    ARIADNE_TEST_EQUALS(normalized.bounding_box().upper_bound(),later.begin()->upper_bound());
+}
+
 Int main() {
     ARIADNE_TEST_CALL(test_interval_union());
     ARIADNE_TEST_CALL(test_floating_interval_union());
+    ARIADNE_TEST_CALL(test_multiprecision_interval_union_ordering_and_compaction());
     return ARIADNE_TEST_FAILURES;
 }
