@@ -1,0 +1,8 @@
+Standalone Ariadne Geometry tutorial.
+
+Build after installing ariadne-geometry:
+
+    mkdir build && cd build
+    cmake .. -DCMAKE_PREFIX_PATH=/path/to/install
+    cmake --build .
+    ./tutorial_geometry
