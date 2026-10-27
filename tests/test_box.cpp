@@ -202,6 +202,32 @@ Void test_box_construction_and_widening() {
     ARIADNE_TEST_EQUALS(widen(UpperBoxType(0u)).dimension(),0u);
 }
 
+Void test_box_metrics_and_products() {
+    const ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
+    ARIADNE_TEST_ASSERT(box.centre()==Point<FloatDPBounds>({1.0_x,3.0_x},dp));
+    ARIADNE_TEST_ASSERT(box.upper_bounds()==Point<FloatDP>({2.0_x,5.0_x},dp));
+    ARIADNE_TEST_EQUALS(box.radius().lower().raw(),FloatDP(2,dp));
+    ARIADNE_TEST_EQUALS(box.radius().upper().raw(),FloatDP(2,dp));
+    const ExactBoxType wide_first{{-2.0_x,2.0_x},{1.0_x,3.0_x}};
+    // Automatic splitting uses the first widest coordinate, including ties.
+    ARIADNE_TEST_ASSERT(same(wide_first.split().first,ExactBoxType({{-2.0_x,0.0_x},{1.0_x,3.0_x}})));
+    const ExactBoxType tied{{0.0_x,2.0_x},{3.0_x,5.0_x}};
+    ARIADNE_TEST_ASSERT(same(tied.split(SplitPart::UPPER),ExactBoxType({{1.0_x,2.0_x},{3.0_x,5.0_x}})));
+    ARIADNE_TEST_EQUALS(wide_first.radius().upper().raw(),FloatDP(2,dp));
+    ARIADNE_TEST_EQUALS((ExactBoxType{{0.0_x,2.0_x}}).radius().upper().raw(),FloatDP(1,dp));
+
+    const ExactBoxType empty(0u);
+    const ExactIntervalType segment(-1.0_x,1.0_x);
+    // Products must preserve all components in operand order; zero-dimensional
+    // operands are identities on either side.
+    ARIADNE_TEST_ASSERT(same(product(box,wide_first),ExactBoxType({{0.0_x,2.0_x},{1.0_x,5.0_x},{-2.0_x,2.0_x},{1.0_x,3.0_x}})));
+    ARIADNE_TEST_ASSERT(same(product(box,empty),box));
+    ARIADNE_TEST_ASSERT(same(product(empty,box),box));
+    ARIADNE_TEST_ASSERT(same(product(empty,empty),empty));
+    ARIADNE_TEST_ASSERT(same(product(box,segment),ExactBoxType({{0.0_x,2.0_x},{1.0_x,5.0_x},{-1.0_x,1.0_x}})));
+    ARIADNE_TEST_ASSERT(same(product(empty,segment),ExactBoxType({{-1.0_x,1.0_x}})));
+}
+
 Void test_box_operations() {
     ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
     ExactBoxType other{{-1.0_x,1.0_x},{2.0_x,3.0_x}};
@@ -301,6 +327,7 @@ Void test_box_operations() {
 
 int main() {
     ARIADNE_TEST_CALL(test_box_construction_and_widening());
+    ARIADNE_TEST_CALL(test_box_metrics_and_products());
     ARIADNE_TEST_CALL(test_box_operations());
     ARIADNE_TEST_CALL(test_box_parsing());
     TestBoxType<FloatDPExactBox>().test();
