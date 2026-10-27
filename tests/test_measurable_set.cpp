@@ -28,6 +28,7 @@
 #include <string>
 #include <iomanip>
 #include <stdexcept>
+#include <limits>
 #include <fenv.h>
 #include "geometry/set.hpp"
 #include "geometry/set_wrapper.hpp"
@@ -82,6 +83,14 @@ Void TestMeasurableSet::test()
     ARIADNE_TEST_CALL(test_scalar_set());
     ARIADNE_TEST_CALL(test_lower_measurable_set_measurement());
     ARIADNE_TEST_EQUALS(exp2(Integer(-3)).exponent(),exp2(-3).exponent());
+    // These fit in host long but exceed Int: rejection must come from exp2's
+    // precondition, rather than the earlier checked Integer-to-long conversion.
+    const Integer largest_exponent(std::numeric_limits<Int>::max());
+    const Integer smallest_exponent(std::numeric_limits<Int>::min());
+    ARIADNE_TEST_EQUALS(exp2(largest_exponent).exponent(),std::numeric_limits<Int>::max());
+    ARIADNE_TEST_EQUALS(exp2(smallest_exponent).exponent(),std::numeric_limits<Int>::min());
+    ARIADNE_TEST_FAIL(exp2(largest_exponent+1));
+    ARIADNE_TEST_FAIL(exp2(smallest_exponent-1));
     ARIADNE_TEST_FAIL(exp2(Integer("18446744073709551616")));
 }
 
