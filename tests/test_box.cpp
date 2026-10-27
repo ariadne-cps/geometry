@@ -161,6 +161,20 @@ template<class BX> class TestBoxType {
 };
 
 
+Void test_box_parsing() {
+    // A single interval reaches end-of-input directly after the first box
+    // component, whereas multiple intervals exercise the 'x' separator.
+    ExactBoxType segment=make_box(String("[0,1]"));
+    ARIADNE_TEST_ASSERT(same(segment,ExactBoxType({{0.0_x,1.0_x}})));
+
+    ExactBoxType rectangle=make_box(String("[-1,2]x[3,4]"));
+    ARIADNE_TEST_ASSERT(same(rectangle,ExactBoxType({{-1.0_x,2.0_x},{3.0_x,4.0_x}})));
+
+    // The parser accepts whitespace surrounding the product separator.
+    ExactBoxType spaced=make_box(String("[0,1] x [2,3]"));
+    ARIADNE_TEST_ASSERT(same(spaced,ExactBoxType({{0.0_x,1.0_x},{2.0_x,3.0_x}})));
+}
+
 Void test_box_operations() {
     ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
     ExactBoxType other{{-1.0_x,1.0_x},{2.0_x,3.0_x}};
@@ -260,6 +274,7 @@ Void test_box_operations() {
 
 int main() {
     ARIADNE_TEST_CALL(test_box_operations());
+    ARIADNE_TEST_CALL(test_box_parsing());
     TestBoxType<FloatDPExactBox>().test();
 
     return ARIADNE_TEST_FAILURES;
