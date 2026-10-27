@@ -104,8 +104,13 @@ template<class U> class UnionOfIntervals {
     // With no interval supplying a precision, use the numeric type's
     // default characteristics for the zero measure of an empty union.
     static MeasureType _zero_measure() {
-        if constexpr (Constructible<MeasureType,Nat>) { return MeasureType(0u); }
-        else { return MeasureType(0u,CharacteristicsType<U>{}); }
+        if constexpr (Constructible<MeasureType,Nat>) {
+            return MeasureType(0u);
+        } else if constexpr (Constructible<CharacteristicsType<U>>) {
+            return MeasureType(0u,CharacteristicsType<U>{});
+        } else {
+            return MeasureType(0u,U::get_default_precision());
+        }
     }
     static UnionOfIntervals<U> _intersection(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2);
     static UnionOfIntervals<U> _join(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2);

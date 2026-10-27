@@ -73,6 +73,7 @@ Void test_floating_interval_union() {
     ARIADNE_TEST_EQUALS(multiprecision.create(IntervalDomainType(1,2)).size(),1u);
     UnionOfIntervals<FloatMP> empty_mp({},MultiplePrecision(128));
     ARIADNE_TEST_EQUALS(empty_mp.create(IntervalDomainType(1,2)).size(),1u);
+    ARIADNE_TEST_EQUALS(empty_mp.measure().upper().raw(),FloatMP(0,FloatMP::get_default_precision()));
     ARIADNE_TEST_FAIL(empty.bounding_box());
     LowerUpperBoundLess less;
     ARIADNE_TEST_ASSERT(less(ExactIntervalType(0,1),ExactIntervalType(1,2)));
