@@ -34,7 +34,7 @@
 #include "geometry/set_wrapper.hpp"
 #include "geometry/measurable_set.hpp"
 
-#include "macro/testing.hpp"
+#include "ariadne-testing.hpp"
 
 using namespace std;
 using namespace Ariadne;
@@ -42,6 +42,11 @@ using namespace Ariadne;
 template<class X> inline OutputStream& operator<<(OutputStream& os, Sequence<X> const& seq) {
     SequenceWriter writer(4u); return os << writer(seq);
 }
+
+class TestMeasurableSet : public Ariadne::Testing::ContextFixture {
+  public:
+    using ContextFixture::ContextFixture;
+    void set_up() { Dyadic::set_default_writer(DecimalWriter()); }
 
 Void test_lower_measurable_set_measurement() {
     using Intervals=UnionOfIntervals<Dyadic>;
@@ -51,74 +56,62 @@ Void test_lower_measurable_set_measurement() {
     // The public handle must delegate both whole-set and restricted measures.
     const auto total=wrapped.measure();
     const auto restricted=wrapped.measure_in(ExactIntervalType(0.25_x,2.25_x));
-    ARIADNE_TEST_EQUALS(total.get(dp).raw(),FloatDP(2,dp));
-    ARIADNE_TEST_EQUALS(restricted.get(dp).raw(),FloatDP(1.5_dy,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(total.get(dp).raw(), FloatDP(2,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(restricted.get(dp).raw(), FloatDP(1.5_dy,dp));
 
     std::ostringstream written;
     written << wrapped;
-    ARIADNE_TEST_ASSERT(!written.str().empty());
+    ARIADNE_TESTING_PROVE(!written.str().empty());
 
     // Error bounds are clamped to [0, measure(set)] before subtraction.
     using Model=LowerMeasurableSetModel<Intervals,Dyadic>;
     const Model partial(intervals,Dyadic(0.5_dy));
     const Model excess(intervals,Dyadic(3));
     const Model negative(intervals,Dyadic(-1));
-    ARIADNE_TEST_EQUALS(measure(partial),PositiveDyadic(1.5_dy));
-    ARIADNE_TEST_EQUALS(measure(excess),PositiveDyadic(0u));
-    ARIADNE_TEST_EQUALS(measure(negative),PositiveDyadic(2u));
+    ARIADNE_TESTING_EXPECT_EQUAL(measure(partial), PositiveDyadic(1.5_dy));
+    ARIADNE_TESTING_EXPECT_EQUAL(measure(excess), PositiveDyadic(0u));
+    ARIADNE_TESTING_EXPECT_EQUAL(measure(negative), PositiveDyadic(2u));
 }
 
-class TestMeasurableSet
-{
-  public:
-    Void test();
-  private:
-    Void test_concept();
-    Void test_scalar_set();
-};
 
-Void TestMeasurableSet::test()
+
+Void test_exponent_range()
 {
     Dyadic::set_default_writer(DecimalWriter());
-    ARIADNE_TEST_CALL(test_scalar_set());
-    ARIADNE_TEST_CALL(test_lower_measurable_set_measurement());
-    ARIADNE_TEST_EQUALS(exp2(Integer(-3)).exponent(),exp2(-3).exponent());
+    ARIADNE_TESTING_EXPECT_EQUAL(exp2(Integer(-3)).exponent(), exp2(-3).exponent());
     // These fit in host long but exceed Int: rejection must come from exp2's
     // precondition, rather than the earlier checked Integer-to-long conversion.
     const Integer largest_exponent(std::numeric_limits<Int>::max());
     const Integer smallest_exponent(std::numeric_limits<Int>::min());
-    ARIADNE_TEST_EQUALS(exp2(largest_exponent).exponent(),std::numeric_limits<Int>::max());
-    ARIADNE_TEST_EQUALS(exp2(smallest_exponent).exponent(),std::numeric_limits<Int>::min());
-    ARIADNE_TEST_FAIL(exp2(largest_exponent+1));
-    ARIADNE_TEST_FAIL(exp2(smallest_exponent-1));
-    ARIADNE_TEST_FAIL(exp2(Integer("18446744073709551616")));
+    ARIADNE_TESTING_EXPECT_EQUAL(exp2(largest_exponent).exponent(), std::numeric_limits<Int>::max());
+    ARIADNE_TESTING_EXPECT_EQUAL(exp2(smallest_exponent).exponent(), std::numeric_limits<Int>::min());
+    ARIADNE_TESTING_EXPECT_EXCEPTION(exp2(largest_exponent+1));
+    ARIADNE_TESTING_EXPECT_EXCEPTION(exp2(smallest_exponent-1));
+    ARIADNE_TESTING_EXPECT_EXCEPTION(exp2(Integer("18446744073709551616")));
 }
 
-Void TestMeasurableSet::test_concept()
-{
-}
 
-Void TestMeasurableSet::test_scalar_set()
+Void test_scalar_set()
 {
     {
-        ARIADNE_TEST_CONSTRUCT(UnionOfIntervals<Dyadic>,ivls1,({{1,2},{1.5_dy,2.5_dy},{0,0.5_dy}}));
-        ARIADNE_TEST_CONSTRUCT(UnionOfIntervals<Dyadic>,ivls2,({{0.25_dy,2.25_dy}}));
-        ARIADNE_TEST_EQUALS(ivls1.measure(),2);
-        ARIADNE_TEST_EQUALS(intersection(ivls1,ivls2).measure(),1.5_dy);
-        ARIADNE_TEST_EQUALS(join(ivls1,ivls2).measure(),2.5_dy);
+        [[maybe_unused]] UnionOfIntervals<Dyadic> ivls1({{1,2},{1.5_dy,2.5_dy},{0,0.5_dy}});
+        [[maybe_unused]] UnionOfIntervals<Dyadic> ivls2({{0.25_dy,2.25_dy}});
+        ARIADNE_TESTING_EXPECT_EQUAL(ivls1.measure(), 2);
+        ARIADNE_TESTING_EXPECT_EQUAL(intersection(ivls1,ivls2).measure(), 1.5_dy);
+        ARIADNE_TESTING_EXPECT_EQUAL(join(ivls1,ivls2).measure(), 2.5_dy);
 
-        ARIADNE_TEST_CONSTRUCT(UnionOfIntervals<FloatDP>,ivls1dp,({{1.0_dy,2.0_dy},{1.5_dy,2.5_dy},{0.0_dy,0.5_dy}},double_precision));
-        ARIADNE_TEST_CONSTRUCT(UnionOfIntervals<FloatMP>,ivls1mp,({{1.0_dy,2.0_dy},{1.5_dy,2.5_dy},{0.0_dy,0.5_dy}},MultiplePrecision(128)));
+        [[maybe_unused]] UnionOfIntervals<FloatDP> ivls1dp({{1.0_dy,2.0_dy},{1.5_dy,2.5_dy},{0.0_dy,0.5_dy}},double_precision);
+        [[maybe_unused]] UnionOfIntervals<FloatMP> ivls1mp({{1.0_dy,2.0_dy},{1.5_dy,2.5_dy},{0.0_dy,0.5_dy}},MultiplePrecision(128));
     }
 
     {
-        ARIADNE_TEST_CONSTRUCT(LowerSequence<UnionOfIntervals<Dyadic>>,lms,([](Natural n){return UnionOfIntervals<Dyadic>({{exp2(-n),1.0_dy+exp2(-(n+1u))}});}));
-        ARIADNE_TEST_CONSTRUCT(IncreasingSequence<PositiveDyadic>,ms,(lms.measures()));
+        [[maybe_unused]] LowerSequence<UnionOfIntervals<Dyadic>> lms([](Natural n){return UnionOfIntervals<Dyadic>({{exp2(-n),1.0_dy+exp2(-(n+1u))}});});
+        [[maybe_unused]] IncreasingSequence<PositiveDyadic> ms(lms.measures());
     }
 
     {
-        ARIADNE_TEST_CONSTRUCT(UnionOfIntervals<Dyadic>,ivls,({{1,2},{1.5_dy,2.5_dy},{0,0.5_dy}}));
-        ARIADNE_TEST_ASSIGN_CONSTRUCT(ValidatedOpenSet<Real>,ops,wrap_open(ivls));
+        [[maybe_unused]] UnionOfIntervals<Dyadic> ivls({{1,2},{1.5_dy,2.5_dy},{0,0.5_dy}});
+        [[maybe_unused]] ValidatedOpenSet<Real> ops = wrap_open(ivls);
 
 
         PositiveDyadic err(0u);
@@ -133,9 +126,12 @@ Void TestMeasurableSet::test_scalar_set()
 }
 
 
-Int main() {
-    TestMeasurableSet().test();
+};
 
-    return ARIADNE_TEST_FAILURES;
+int main(int argc, char** argv) {
+    ARIADNE_TESTING_SUITE("test_measurable_set");
+    ARIADNE_TESTING_ADD_TEST(TestMeasurableSet, test_scalar_set);
+    ARIADNE_TESTING_ADD_TEST(TestMeasurableSet, test_lower_measurable_set_measurement);
+    ARIADNE_TESTING_ADD_TEST(TestMeasurableSet, test_exponent_range);
+    return ARIADNE_TESTING_RUN_TESTS_WITH_ARGS(argc, argv);
 }
-

@@ -28,7 +28,7 @@
 #include <memory>
 #include <sstream>
 
-#include "macro/testing.hpp"
+#include "ariadne-testing.hpp"
 
 using namespace Ariadne;
 using std::cout; using std::endl;
@@ -40,7 +40,7 @@ template<class I> Box<I> make_box(InitializerList<Interval<RawFloatDP>> lst) {
 template<class B> inline auto possibly_not(B b) -> decltype(possibly(not b)) { return possibly(not b); }
 template<class B> inline auto definitely_not(B b) -> decltype(definitely(not b)) { return definitely(not b); }
 
-template<class BX> class TestBoxType {
+template<class BX> class TestBoxType : public Ariadne::Testing::ContextFixture {
     typedef typename BX::IntervalType I;
     typedef typename I::LowerBoundType L;
     typedef typename I::UpperBoundType U;
@@ -49,42 +49,39 @@ template<class BX> class TestBoxType {
     typedef Point<X> PointType;
     typedef BX BoxType;
   public:
-    void test() {
-        ARIADNE_TEST_CALL(test_geometric_predicates());
-        ARIADNE_TEST_CALL(test_vertices());
-    }
+    using ContextFixture::ContextFixture;
 
     void test_vertices() {
         // Zero dimensions have no vertices; one dimension exercises the base
         // case, while two and three dimensions exercise both recursion orders.
         BoxType zero_dimensional(0u);
-        ARIADNE_TEST_EQUALS(zero_dimensional.vertices().size(),0u);
+        ARIADNE_TESTING_EXPECT_EQUAL(zero_dimensional.vertices().size(), 0u);
 
         BoxType segment({{-1.0_x,2.0_x}});
         auto segment_vertices=segment.vertices();
-        ARIADNE_TEST_EQUALS(segment_vertices.size(),2u);
-        ARIADNE_TEST_ASSERT(segment_vertices[0]==PointType({-1.0_x},dp));
-        ARIADNE_TEST_ASSERT(segment_vertices[1]==PointType({2.0_x},dp));
+        ARIADNE_TESTING_EXPECT_EQUAL(segment_vertices.size(), 2u);
+        ARIADNE_TESTING_PROVE(segment_vertices[0]==PointType({-1.0_x},dp));
+        ARIADNE_TESTING_PROVE(segment_vertices[1]==PointType({2.0_x},dp));
 
         BoxType rectangle({{-1.0_x,2.0_x},{3.0_x,5.0_x}});
         auto rectangle_vertices=rectangle.vertices();
-        ARIADNE_TEST_EQUALS(rectangle_vertices.size(),4u);
-        ARIADNE_TEST_ASSERT(rectangle_vertices[0]==PointType({-1.0_x,3.0_x},dp));
-        ARIADNE_TEST_ASSERT(rectangle_vertices[1]==PointType({-1.0_x,5.0_x},dp));
-        ARIADNE_TEST_ASSERT(rectangle_vertices[2]==PointType({2.0_x,5.0_x},dp));
-        ARIADNE_TEST_ASSERT(rectangle_vertices[3]==PointType({2.0_x,3.0_x},dp));
+        ARIADNE_TESTING_EXPECT_EQUAL(rectangle_vertices.size(), 4u);
+        ARIADNE_TESTING_PROVE(rectangle_vertices[0]==PointType({-1.0_x,3.0_x},dp));
+        ARIADNE_TESTING_PROVE(rectangle_vertices[1]==PointType({-1.0_x,5.0_x},dp));
+        ARIADNE_TESTING_PROVE(rectangle_vertices[2]==PointType({2.0_x,5.0_x},dp));
+        ARIADNE_TESTING_PROVE(rectangle_vertices[3]==PointType({2.0_x,3.0_x},dp));
 
         BoxType cube({{0.0_x,1.0_x},{2.0_x,3.0_x},{4.0_x,5.0_x}});
         auto cube_vertices=cube.vertices();
-        ARIADNE_TEST_EQUALS(cube_vertices.size(),8u);
-        ARIADNE_TEST_ASSERT(cube_vertices[0]==PointType({0.0_x,2.0_x,4.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[1]==PointType({0.0_x,2.0_x,5.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[2]==PointType({0.0_x,3.0_x,5.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[3]==PointType({0.0_x,3.0_x,4.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[4]==PointType({1.0_x,3.0_x,4.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[5]==PointType({1.0_x,3.0_x,5.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[6]==PointType({1.0_x,2.0_x,5.0_x},dp));
-        ARIADNE_TEST_ASSERT(cube_vertices[7]==PointType({1.0_x,2.0_x,4.0_x},dp));
+        ARIADNE_TESTING_EXPECT_EQUAL(cube_vertices.size(), 8u);
+        ARIADNE_TESTING_PROVE(cube_vertices[0]==PointType({0.0_x,2.0_x,4.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[1]==PointType({0.0_x,2.0_x,5.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[2]==PointType({0.0_x,3.0_x,5.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[3]==PointType({0.0_x,3.0_x,4.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[4]==PointType({1.0_x,3.0_x,4.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[5]==PointType({1.0_x,3.0_x,5.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[6]==PointType({1.0_x,2.0_x,5.0_x},dp));
+        ARIADNE_TESTING_PROVE(cube_vertices[7]==PointType({1.0_x,2.0_x,4.0_x},dp));
     }
 
     void test_geometric_predicates() {
@@ -95,65 +92,65 @@ template<class BX> class TestBoxType {
     PointType s4({2.0_x,2.0_x},dp);
     PointType s5({0.75_x,0.125_x},dp);
 
-    ARIADNE_TEST_CONSTRUCT( BoxType, r0, (2) );
-    ARIADNE_TEST_CONSTRUCT( BoxType, r1, ({{0.0_x,1.0_x},{0.0_x,1.0_x}}) );
-    ARIADNE_TEST_CONSTRUCT( BoxType, r2, ({{-0.5_x,1.5_x},{-0.375_x,0.5_x}}) );
-    ARIADNE_TEST_CONSTRUCT( BoxType, r3, ({{-0.25_x,0.625_x},{0.375_x,1.5_x}}) );
-    ARIADNE_TEST_CONSTRUCT( BoxType, r4, ({{0.5625_x,1.125_x},{0.4375_x,1.375_x}}) );
-    ARIADNE_TEST_CONSTRUCT( BoxType, r5, ({{0.0_x,1.1875_x},{0.4375_x,1.0_x}}) );
-    ARIADNE_TEST_CONSTRUCT( BoxType, r6, ({{0.0_x,1.0_x},{0.0_x,0.5_x}}) );
+    [[maybe_unused]] BoxType r0(2);
+    [[maybe_unused]] BoxType r1({{0.0_x,1.0_x},{0.0_x,1.0_x}});
+    [[maybe_unused]] BoxType r2({{-0.5_x,1.5_x},{-0.375_x,0.5_x}});
+    [[maybe_unused]] BoxType r3({{-0.25_x,0.625_x},{0.375_x,1.5_x}});
+    [[maybe_unused]] BoxType r4({{0.5625_x,1.125_x},{0.4375_x,1.375_x}});
+    [[maybe_unused]] BoxType r5({{0.0_x,1.1875_x},{0.4375_x,1.0_x}});
+    [[maybe_unused]] BoxType r6({{0.0_x,1.0_x},{0.0_x,0.5_x}});
 
-    ARIADNE_TEST_EQUALS(r2.volume(),1.75_x);
-    ARIADNE_TEST_EQUALS(r2.semiperimeter(),2.875_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.volume(), 1.75_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.semiperimeter(), 2.875_x);
 
-    ARIADNE_TEST_EQUALS(r2.widths()[0],2.0_x);
-    ARIADNE_TEST_EQUALS(r2.widths()[1],0.875_x);
-    ARIADNE_TEST_EQUALS(r2.radii()[0],1.0_x);
-    ARIADNE_TEST_EQUALS(r2.radii()[1],0.4375_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.widths()[0], 2.0_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.widths()[1], 0.875_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.radii()[0], 1.0_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.radii()[1], 0.4375_x);
 
-    ARIADNE_TEST_EQUALS(r2.measure(), 1.75_x);
+    ARIADNE_TESTING_EXPECT_EQUAL(r2.measure(), 1.75_x);
 
-    ARIADNE_TEST_ASSERT(r2.midpoint()==PointType({0.5_x,0.0625_x},dp));
+    ARIADNE_TESTING_PROVE(r2.midpoint()==PointType({0.5_x,0.0625_x},dp));
 
-    ARIADNE_TEST_ASSERT(decide(!disjoint(r1,r1)));
-    ARIADNE_TEST_ASSERT(definitely(subset(r1,r1)));
+    ARIADNE_TESTING_PROVE(decide(!disjoint(r1,r1)));
+    ARIADNE_TESTING_PROVE(definitely(subset(r1,r1)));
 
-    ARIADNE_TEST_ASSERT(definitely(contains(r1,s1)));
-    ARIADNE_TEST_ASSERT(decide(!contains(r1,s3)));
-    ARIADNE_TEST_ASSERT(decide(contains(r1,s5)));
-    //ARIADNE_TEST_ASSERT(!subset_of_interior(r1,r1));
-    //ARIADNE_TEST_ASSERT(subset_of_open_cover(r1,cover1));
-    //ARIADNE_TEST_ASSERT(!subset_of_open_cover(r1,cover2));
+    ARIADNE_TESTING_PROVE(definitely(contains(r1,s1)));
+    ARIADNE_TESTING_PROVE(decide(!contains(r1,s3)));
+    ARIADNE_TESTING_PROVE(decide(contains(r1,s5)));
+    //ARIADNE_TESTING_PROVE(!subset_of_interior(r1,r1));
+    //ARIADNE_TESTING_PROVE(subset_of_open_cover(r1,cover1));
+    //ARIADNE_TESTING_PROVE(!subset_of_open_cover(r1,cover2));
 
-    ARIADNE_TEST_EXECUTE( r4=intersection(r1,r2) );
-    ARIADNE_TEST_ASSERT(r4==r6);
+    ARIADNE_TESTING_EXPECT_NO_THROW(r4=intersection(r1,r2));
+    ARIADNE_TESTING_PROVE(r4==r6);
 
-    ARIADNE_TEST_EXECUTE( r1[1]=IntervalType(0.0_x,0.5_x) );
-    ARIADNE_TEST_ASSERT(r1==r6);
+    ARIADNE_TESTING_EXPECT_NO_THROW(r1[1]=IntervalType(0.0_x,0.5_x));
+    ARIADNE_TESTING_PROVE(r1==r6);
 
-    ARIADNE_TEST_ASSERT(definitely(intersect(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
-    ARIADNE_TEST_ASSERT(definitely_not(intersect(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.5_x,2.0_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely(intersect(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely_not(intersect(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.5_x,2.0_x},{1.5_x,2.5_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(disjoint(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.5_x,2.0_x},{1.5_x,2.5_x}})));
-    ARIADNE_TEST_ASSERT(definitely_not(disjoint(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely(disjoint(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.5_x,2.0_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely_not(disjoint(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(subset(BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}})));
-    ARIADNE_TEST_ASSERT(definitely_not(subset(BoxType{{0.5_x,1.5_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.0_x},{1.0_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely(subset(BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely_not(subset(BoxType{{0.5_x,1.5_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.0_x},{1.0_x,2.5_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(superset(BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}})));
-    ARIADNE_TEST_ASSERT(definitely_not(superset(BoxType{{0.0_x,1.0_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.5_x},{1.5_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(definitely(superset(BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(definitely_not(superset(BoxType{{0.0_x,1.0_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.5_x},{1.5_x,2.0_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(covers(BoxType{{0.0_x,1.5_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.0_x},{1.5_x,2.0_x}})));
-    ARIADNE_TEST_ASSERT(possibly_not(covers(BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(definitely(covers(BoxType{{0.0_x,1.5_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.0_x},{1.5_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(possibly_not(covers(BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}},BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(overlap(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{0.5_x,1.5_x},{1.5_x,2.5_x}})));
-    ARIADNE_TEST_ASSERT(possibly_not(overlap(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely(overlap(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{0.5_x,1.5_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(possibly_not(overlap(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(inside(BoxType{{0.5_x,1.0_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.5_x},{1.0_x,2.5_x}})));
-    ARIADNE_TEST_ASSERT(possibly_not(inside(BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely(inside(BoxType{{0.5_x,1.0_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.5_x},{1.0_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(possibly_not(inside(BoxType{{0.5_x,1.25_x},{1.5_x,2.0_x}},BoxType{{0.0_x,1.25_x},{1.0_x,2.5_x}})));
 
-    ARIADNE_TEST_ASSERT(definitely(separated(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.5_x,2.5_x},{1.5_x,2.5_x}})));
-    ARIADNE_TEST_ASSERT(possibly_not(separated(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(definitely(separated(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.5_x,2.5_x},{1.5_x,2.5_x}})));
+    ARIADNE_TESTING_PROVE(possibly_not(separated(BoxType{{0.0_x,1.0_x},{1.0_x,2.0_x}},BoxType{{1.0_x,2.0_x},{1.5_x,2.5_x}})));
 
 
 
@@ -161,176 +158,183 @@ template<class BX> class TestBoxType {
 };
 
 
+class TestBox : public Ariadne::Testing::ContextFixture {
+  public:
+    using ContextFixture::ContextFixture;
+
 Void test_box_parsing() {
     // A single interval reaches end-of-input directly after the first box
     // component, whereas multiple intervals exercise the 'x' separator.
     ExactBoxType segment=make_box(String("[0,1]"));
-    ARIADNE_TEST_ASSERT(same(segment,ExactBoxType({{0.0_x,1.0_x}})));
+    ARIADNE_TESTING_PROVE(same(segment,ExactBoxType({{0.0_x,1.0_x}})));
 
     ExactBoxType rectangle=make_box(String("[-1,2]x[3,4]"));
-    ARIADNE_TEST_ASSERT(same(rectangle,ExactBoxType({{-1.0_x,2.0_x},{3.0_x,4.0_x}})));
+    ARIADNE_TESTING_PROVE(same(rectangle,ExactBoxType({{-1.0_x,2.0_x},{3.0_x,4.0_x}})));
 
     // The parser accepts whitespace surrounding the product separator.
     ExactBoxType spaced=make_box(String("[0,1] x [2,3]"));
-    ARIADNE_TEST_ASSERT(same(spaced,ExactBoxType({{0.0_x,1.0_x},{2.0_x,3.0_x}})));
+    ARIADNE_TESTING_PROVE(same(spaced,ExactBoxType({{0.0_x,1.0_x},{2.0_x,3.0_x}})));
 }
 
 Void test_box_construction_and_widening() {
     const ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
     const Vector<ExactIntervalType> components{box[0],box[1]};
-    ARIADNE_TEST_ASSERT(same(ExactBoxType(components),box));
-    ARIADNE_TEST_ASSERT(same(ExactBoxType::unit_box(2u),ExactBoxType({{-1.0_x,1.0_x},{-1.0_x,1.0_x}})));
-    ARIADNE_TEST_EQUALS(ExactBoxType::unit_box(0u).dimension(),0u);
-    ARIADNE_TEST_ASSERT(midpoint(box)==Point<FloatDP>({1.0_x,3.0_x},dp));
+    ARIADNE_TESTING_PROVE(same(ExactBoxType(components),box));
+    ARIADNE_TESTING_PROVE(same(ExactBoxType::unit_box(2u),ExactBoxType({{-1.0_x,1.0_x},{-1.0_x,1.0_x}})));
+    ARIADNE_TESTING_EXPECT_EQUAL(ExactBoxType::unit_box(0u).dimension(), 0u);
+    ARIADNE_TESTING_PROVE(midpoint(box)==Point<FloatDP>({1.0_x,3.0_x},dp));
 
     const ApproximateBoxType approximate(box);
-    ARIADNE_TEST_ASSERT(same(cast_exact_box(approximate),box));
-    ARIADNE_TEST_EQUALS(cast_exact_box(ApproximateBoxType(0u)).dimension(),0u);
+    ARIADNE_TESTING_PROVE(same(cast_exact_box(approximate),box));
+    ARIADNE_TESTING_EXPECT_EQUAL(cast_exact_box(ApproximateBoxType(0u)).dimension(), 0u);
     const Vector<FloatDPBounds> bounds({{0.0_x,2.0_x},{1.0_x,5.0_x}},dp);
-    ARIADNE_TEST_ASSERT(same(cast_exact_box(bounds),box));
-    ARIADNE_TEST_EQUALS(cast_exact_box(Vector<FloatDPBounds>(0u,dp)).dimension(),0u);
+    ARIADNE_TESTING_PROVE(same(cast_exact_box(bounds),box));
+    ARIADNE_TESTING_EXPECT_EQUAL(cast_exact_box(Vector<FloatDPBounds>(0u,dp)).dimension(), 0u);
 
     const UpperBoxType upper(box);
     const auto expanded=widen(upper,ValidatedUpperNumber(1));
-    ARIADNE_TEST_ASSERT(same(expanded,UpperBoxType({{-1.0_x,3.0_x},{0.0_x,6.0_x}})));
+    ARIADNE_TESTING_PROVE(same(expanded,UpperBoxType({{-1.0_x,3.0_x},{0.0_x,6.0_x}})));
     // Default widening includes each original endpoint, even when rounding
     // absorbs the tiny increment at a nonzero endpoint.
     const auto rounded_box=widen(upper);
-    ARIADNE_TEST_EQUALS(rounded_box.dimension(),box.dimension());
-    ARIADNE_TEST_ASSERT(definitely(subset(box,cast_exact_box(rounded_box))));
-    ARIADNE_TEST_ASSERT(rounded_box[0].lower_bound().raw()<FloatDP(0,dp));
-    ARIADNE_TEST_EQUALS(widen(UpperBoxType(0u)).dimension(),0u);
+    ARIADNE_TESTING_EXPECT_EQUAL(rounded_box.dimension(), box.dimension());
+    ARIADNE_TESTING_PROVE(definitely(subset(box,cast_exact_box(rounded_box))));
+    ARIADNE_TESTING_PROVE(rounded_box[0].lower_bound().raw()<FloatDP(0,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(widen(UpperBoxType(0u)).dimension(), 0u);
 }
 
 Void test_box_metrics_and_products() {
     const ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
-    ARIADNE_TEST_ASSERT(box.centre()==Point<FloatDPBounds>({1.0_x,3.0_x},dp));
-    ARIADNE_TEST_ASSERT(box.upper_bounds()==Point<FloatDP>({2.0_x,5.0_x},dp));
-    ARIADNE_TEST_EQUALS(box.radius().lower().raw(),FloatDP(2,dp));
-    ARIADNE_TEST_EQUALS(box.radius().upper().raw(),FloatDP(2,dp));
+    ARIADNE_TESTING_PROVE(box.centre()==Point<FloatDPBounds>({1.0_x,3.0_x},dp));
+    ARIADNE_TESTING_PROVE(box.upper_bounds()==Point<FloatDP>({2.0_x,5.0_x},dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.radius().lower().raw(), FloatDP(2,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.radius().upper().raw(), FloatDP(2,dp));
     const ExactBoxType wide_first{{-2.0_x,2.0_x},{1.0_x,3.0_x}};
     // Automatic splitting uses the first widest coordinate, including ties.
-    ARIADNE_TEST_ASSERT(same(wide_first.split().first,ExactBoxType({{-2.0_x,0.0_x},{1.0_x,3.0_x}})));
+    ARIADNE_TESTING_PROVE(same(wide_first.split().first,ExactBoxType({{-2.0_x,0.0_x},{1.0_x,3.0_x}})));
     const ExactBoxType tied{{0.0_x,2.0_x},{3.0_x,5.0_x}};
-    ARIADNE_TEST_ASSERT(same(tied.split(SplitPart::UPPER),ExactBoxType({{1.0_x,2.0_x},{3.0_x,5.0_x}})));
-    ARIADNE_TEST_EQUALS(wide_first.radius().upper().raw(),FloatDP(2,dp));
-    ARIADNE_TEST_EQUALS((ExactBoxType{{0.0_x,2.0_x}}).radius().upper().raw(),FloatDP(1,dp));
+    ARIADNE_TESTING_PROVE(same(tied.split(SplitPart::UPPER),ExactBoxType({{1.0_x,2.0_x},{3.0_x,5.0_x}})));
+    ARIADNE_TESTING_EXPECT_EQUAL(wide_first.radius().upper().raw(), FloatDP(2,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL((ExactBoxType{{0.0_x,2.0_x}}).radius().upper().raw(), FloatDP(1,dp));
 
     const ExactBoxType empty(0u);
     const ExactIntervalType segment(-1.0_x,1.0_x);
     // Products must preserve all components in operand order; zero-dimensional
     // operands are identities on either side.
-    ARIADNE_TEST_ASSERT(same(product(box,wide_first),ExactBoxType({{0.0_x,2.0_x},{1.0_x,5.0_x},{-2.0_x,2.0_x},{1.0_x,3.0_x}})));
-    ARIADNE_TEST_ASSERT(same(product(box,empty),box));
-    ARIADNE_TEST_ASSERT(same(product(empty,box),box));
-    ARIADNE_TEST_ASSERT(same(product(empty,empty),empty));
-    ARIADNE_TEST_ASSERT(same(product(box,segment),ExactBoxType({{0.0_x,2.0_x},{1.0_x,5.0_x},{-1.0_x,1.0_x}})));
-    ARIADNE_TEST_ASSERT(same(product(empty,segment),ExactBoxType({{-1.0_x,1.0_x}})));
+    ARIADNE_TESTING_PROVE(same(product(box,wide_first),ExactBoxType({{0.0_x,2.0_x},{1.0_x,5.0_x},{-2.0_x,2.0_x},{1.0_x,3.0_x}})));
+    ARIADNE_TESTING_PROVE(same(product(box,empty),box));
+    ARIADNE_TESTING_PROVE(same(product(empty,box),box));
+    ARIADNE_TESTING_PROVE(same(product(empty,empty),empty));
+    ARIADNE_TESTING_PROVE(same(product(box,segment),ExactBoxType({{0.0_x,2.0_x},{1.0_x,5.0_x},{-1.0_x,1.0_x}})));
+    ARIADNE_TESTING_PROVE(same(product(empty,segment),ExactBoxType({{-1.0_x,1.0_x}})));
 }
 
 Void test_box_operations() {
     ExactBoxType box{{0.0_x,2.0_x},{1.0_x,5.0_x}};
     ExactBoxType other{{-1.0_x,1.0_x},{2.0_x,3.0_x}};
     ExactBoxType empty(0u);
-    ARIADNE_TEST_ASSERT(!(box==empty));
-    ARIADNE_TEST_ASSERT(!same(box,empty));
-    ARIADNE_TEST_ASSERT(!same(box,other));
-    ARIADNE_TEST_ASSERT(same(box,box));
-    ARIADNE_TEST_ASSERT(same(hull(box,other),ExactBoxType({{-1.0_x,2.0_x},{1.0_x,5.0_x}})));
-    ARIADNE_TEST_ASSERT(same(hull(empty,empty),empty));
-    ARIADNE_TEST_ASSERT(same(remove(box,0u),ExactBoxType({{1.0_x,5.0_x}})));
-    ARIADNE_TEST_ASSERT(same(remove(box,1u),ExactBoxType({{0.0_x,2.0_x}})));
-    ARIADNE_TEST_ASSERT(same(project(box,Array<SizeType>{1u,0u}),ExactBoxType({{1.0_x,5.0_x},{0.0_x,2.0_x}})));
-    ARIADNE_TEST_ASSERT(same(project(box,Array<SizeType>{}),empty));
+    ARIADNE_TESTING_PROVE(!(box==empty));
+    ARIADNE_TESTING_PROVE(!same(box,empty));
+    ARIADNE_TESTING_PROVE(!same(box,other));
+    ARIADNE_TESTING_PROVE(same(box,box));
+    ARIADNE_TESTING_PROVE(same(hull(box,other),ExactBoxType({{-1.0_x,2.0_x},{1.0_x,5.0_x}})));
+    ARIADNE_TESTING_PROVE(same(hull(empty,empty),empty));
+    ARIADNE_TESTING_PROVE(same(remove(box,0u),ExactBoxType({{1.0_x,5.0_x}})));
+    ARIADNE_TESTING_PROVE(same(remove(box,1u),ExactBoxType({{0.0_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(same(project(box,Array<SizeType>{1u,0u}),ExactBoxType({{1.0_x,5.0_x},{0.0_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(same(project(box,Array<SizeType>{}),empty));
     const ExactBoxType& const_box=box;
-    ARIADNE_TEST_ASSERT(same(const_box[range(0u,1u)],ExactBoxType({{0.0_x,2.0_x}})));
+    ARIADNE_TESTING_PROVE(same(const_box[range(0u,1u)],ExactBoxType({{0.0_x,2.0_x}})));
     ExactIntervalType ivl(-1.0_x,1.0_x);
-    ARIADNE_TEST_EQUALS(product(box,other,empty).dimension(),4u);
-    ARIADNE_TEST_EQUALS(product(empty,empty,box).dimension(),2u);
-    ARIADNE_TEST_EQUALS(product(ivl,box).dimension(),3u);
-    ARIADNE_TEST_EQUALS(product(ivl,empty).dimension(),1u);
-    ARIADNE_TEST_ASSERT(same(box.split(0u,SplitPart::LOWER),ExactBoxType({{0.0_x,1.0_x},{1.0_x,5.0_x}})));
-    ARIADNE_TEST_ASSERT(same(box.split(SplitPart::UPPER),ExactBoxType({{0.0_x,2.0_x},{3.0_x,5.0_x}})));
-    ARIADNE_TEST_ASSERT(same(split(box,0u,SplitPart::MIDDLE),ExactBoxType({{0.5_x,1.5_x},{1.0_x,5.0_x}})));
-    ARIADNE_TEST_ASSERT(same(split(box,0u,SplitPart::LOWER),box.split(0u).first));
-    ARIADNE_TEST_ASSERT(same(split(box,0u,SplitPart::UPPER),box.split(0u).second));
-    ARIADNE_TEST_ASSERT(same(split(box).first,box.split().first));
-    ARIADNE_TEST_ASSERT(same(split(box,SplitPart::LOWER),box.split().first));
-    ARIADNE_TEST_EQUALS(irmax(ExactBoxType{{0.0_x,0.0_x},{0.0_x,1.0_x}}),1u);
-    ARIADNE_TEST_ASSERT(!definitely(box.is_empty()));
-    ARIADNE_TEST_ASSERT(definitely(ExactBoxType(2u).is_empty()));
-    ARIADNE_TEST_ASSERT(definitely(box.is_bounded()));
-    ARIADNE_TEST_ASSERT(!definitely(ExactBoxType::upper_orthant(2u).is_bounded()));
-    ARIADNE_TEST_EQUALS(box.widths()[1].upper().raw(),FloatDP(4,dp));
-    ARIADNE_TEST_EQUALS(box.radii()[1].upper().raw(),FloatDP(2,dp));
-    ARIADNE_TEST_EQUALS(box.semiperimeter().upper().raw(),FloatDP(6,dp));
-    ARIADNE_TEST_EQUALS(box.volume().upper().raw(),FloatDP(8,dp));
-    ARIADNE_TEST_EQUALS(box.volume().lower().raw(),FloatDP(8,dp));
-    ARIADNE_TEST_ASSERT(!definitely(box.disjoint(other)));
-    ARIADNE_TEST_ASSERT(definitely(box.intersects(other)));
-    ARIADNE_TEST_ASSERT(definitely(box.superset(box)));
-    ARIADNE_TEST_ASSERT(definitely(box.subset(box)));
-    ARIADNE_TEST_ASSERT(!definitely(box.covers(box)));
-    ARIADNE_TEST_ASSERT(definitely(box.overlaps(other)));
-    ARIADNE_TEST_ASSERT(!definitely(box.inside(other)));
-    ARIADNE_TEST_ASSERT(!definitely(box.separated(other)));
+    ARIADNE_TESTING_EXPECT_EQUAL(product(box,other,empty).dimension(), 4u);
+    ARIADNE_TESTING_EXPECT_EQUAL(product(empty,empty,box).dimension(), 2u);
+    ARIADNE_TESTING_EXPECT_EQUAL(product(ivl,box).dimension(), 3u);
+    ARIADNE_TESTING_EXPECT_EQUAL(product(ivl,empty).dimension(), 1u);
+    ARIADNE_TESTING_PROVE(same(box.split(0u,SplitPart::LOWER),ExactBoxType({{0.0_x,1.0_x},{1.0_x,5.0_x}})));
+    ARIADNE_TESTING_PROVE(same(box.split(SplitPart::UPPER),ExactBoxType({{0.0_x,2.0_x},{3.0_x,5.0_x}})));
+    ARIADNE_TESTING_PROVE(same(split(box,0u,SplitPart::MIDDLE),ExactBoxType({{0.5_x,1.5_x},{1.0_x,5.0_x}})));
+    ARIADNE_TESTING_PROVE(same(split(box,0u,SplitPart::LOWER),box.split(0u).first));
+    ARIADNE_TESTING_PROVE(same(split(box,0u,SplitPart::UPPER),box.split(0u).second));
+    ARIADNE_TESTING_PROVE(same(split(box).first,box.split().first));
+    ARIADNE_TESTING_PROVE(same(split(box,SplitPart::LOWER),box.split().first));
+    ARIADNE_TESTING_EXPECT_EQUAL(irmax(ExactBoxType{{0.0_x,0.0_x},{0.0_x,1.0_x}}), 1u);
+    ARIADNE_TESTING_PROVE(!definitely(box.is_empty()));
+    ARIADNE_TESTING_PROVE(definitely(ExactBoxType(2u).is_empty()));
+    ARIADNE_TESTING_PROVE(definitely(box.is_bounded()));
+    ARIADNE_TESTING_PROVE(!definitely(ExactBoxType::upper_orthant(2u).is_bounded()));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.widths()[1].upper().raw(), FloatDP(4,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.radii()[1].upper().raw(), FloatDP(2,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.semiperimeter().upper().raw(), FloatDP(6,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.volume().upper().raw(), FloatDP(8,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(box.volume().lower().raw(), FloatDP(8,dp));
+    ARIADNE_TESTING_PROVE(!definitely(box.disjoint(other)));
+    ARIADNE_TESTING_PROVE(definitely(box.intersects(other)));
+    ARIADNE_TESTING_PROVE(definitely(box.superset(box)));
+    ARIADNE_TESTING_PROVE(definitely(box.subset(box)));
+    ARIADNE_TESTING_PROVE(!definitely(box.covers(box)));
+    ARIADNE_TESTING_PROVE(definitely(box.overlaps(other)));
+    ARIADNE_TESTING_PROVE(!definitely(box.inside(other)));
+    ARIADNE_TESTING_PROVE(!definitely(box.separated(other)));
     DoubleInput input(1.25);
-    ARIADNE_TEST_EQUALS(static_cast<double>(input),1.25);
+    ARIADNE_TESTING_EXPECT_EQUAL(static_cast<double>(input), 1.25);
     ApproximateBoxType approximate(box);
     auto expanded=widen(approximate,FloatDPApproximation(1,dp));
-    ARIADNE_TEST_EQUALS(expanded[0].lower_bound().raw(),FloatDP(-1,dp));
-    ARIADNE_TEST_EQUALS(widen(ApproximateBoxType(0u),FloatDPApproximation(1,dp)).dimension(),0u);
-    ARIADNE_TEST_ASSERT(definitely(subset(box,cast_exact_box(widen(box,FloatDP(1,dp))))));
+    ARIADNE_TESTING_EXPECT_EQUAL(expanded[0].lower_bound().raw(), FloatDP(-1,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(widen(ApproximateBoxType(0u),FloatDPApproximation(1,dp)).dimension(), 0u);
+    ARIADNE_TESTING_PROVE(definitely(subset(box,cast_exact_box(widen(box,FloatDP(1,dp))))));
     UpperBoxType upper(box);
-    ARIADNE_TEST_ASSERT(definitely(subset(box,widen_domain(upper))));
-    ARIADNE_TEST_EQUALS(widen_domain(UpperBoxType(0u)).dimension(),0u);
+    ARIADNE_TESTING_PROVE(definitely(subset(box,widen_domain(upper))));
+    ARIADNE_TESTING_EXPECT_EQUAL(widen_domain(UpperBoxType(0u)).dimension(), 0u);
     LowerBoxType lower(box);
     auto contracted=narrow(lower,FloatDPUpperBound(0.25_x,dp));
-    ARIADNE_TEST_EQUALS(contracted[0].lower_bound().raw(),FloatDP(0.25_x,dp));
-    ARIADNE_TEST_EQUALS(contracted[0].upper_bound().raw(),FloatDP(1.75_x,dp));
-    ARIADNE_TEST_ASSERT(narrow(lower)[0].lower_bound().raw()>=FloatDP(0,dp));
-    ARIADNE_TEST_EQUALS(narrow(LowerBoxType(0u)).dimension(),0u);
-    ARIADNE_TEST_EQUALS(narrow(LowerBoxType(0u),FloatDPUpperBound(1,dp)).dimension(),0u);
+    ARIADNE_TESTING_EXPECT_EQUAL(contracted[0].lower_bound().raw(), FloatDP(0.25_x,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(contracted[0].upper_bound().raw(), FloatDP(1.75_x,dp));
+    ARIADNE_TESTING_PROVE(narrow(lower)[0].lower_bound().raw()>=FloatDP(0,dp));
+    ARIADNE_TESTING_EXPECT_EQUAL(narrow(LowerBoxType(0u)).dimension(), 0u);
+    ARIADNE_TESTING_EXPECT_EQUAL(narrow(LowerBoxType(0u),FloatDPUpperBound(1,dp)).dimension(), 0u);
 
-    ARIADNE_TEST_ASSERT(!same(upper,UpperBoxType(0u)));
+    ARIADNE_TESTING_PROVE(!same(upper,UpperBoxType(0u)));
     UpperBoxType wide_upper{{0.0_x,1.0_x},{0.0_x,2.0_x}};
-    ARIADNE_TEST_EQUALS(wide_upper.split().first[1].upper_bound().raw(),FloatDP(1,dp));
-    ARIADNE_TEST_FAIL(box.split(2u,SplitPart::LOWER));
-    ARIADNE_TEST_FAIL(box.split(2u));
-    ARIADNE_TEST_FAIL(upper.split(2u));
-    ARIADNE_TEST_FAIL(empty.radius());
-    ARIADNE_TEST_FAIL(empty.widths());
-    ARIADNE_TEST_FAIL(empty.radii());
-    ARIADNE_TEST_FAIL(empty.semiperimeter());
-    ARIADNE_TEST_FAIL(empty.measure());
-    ARIADNE_TEST_FAIL(hull(box,empty));
+    ARIADNE_TESTING_EXPECT_EQUAL(wide_upper.split().first[1].upper_bound().raw(), FloatDP(1,dp));
+    ARIADNE_TESTING_EXPECT_EXCEPTION(box.split(2u,SplitPart::LOWER));
+    ARIADNE_TESTING_EXPECT_EXCEPTION(box.split(2u));
+    ARIADNE_TESTING_EXPECT_EXCEPTION(upper.split(2u));
+    ARIADNE_TESTING_EXPECT_EXCEPTION(empty.radius());
+    ARIADNE_TESTING_EXPECT_EXCEPTION(empty.widths());
+    ARIADNE_TESTING_EXPECT_EXCEPTION(empty.radii());
+    ARIADNE_TESTING_EXPECT_EXCEPTION(empty.semiperimeter());
+    ARIADNE_TESTING_EXPECT_EXCEPTION(empty.measure());
+    ARIADNE_TESTING_EXPECT_EXCEPTION(hull(box,empty));
     ExactBoxSetType exact_set(box);
     ApproximateBoxSetType approximate_set(approximate);
     RealBoxSet real_set(RealBox{{0,2},{1,5}});
     std::unique_ptr<ExactBoxSetType> exact_copy(exact_set.clone());
     std::unique_ptr<ApproximateBoxSetType> approximate_copy(approximate_set.clone());
     std::unique_ptr<RealBoxSet> real_copy(real_set.clone());
-    ARIADNE_TEST_EQUALS(exact_copy->dimension(),2u);
-    ARIADNE_TEST_EQUALS(approximate_copy->dimension(),2u);
-    ARIADNE_TEST_EQUALS(real_copy->dimension(),2u);
-    ARIADNE_TEST_ASSERT(definitely(exact_set.overlaps(other),Effort(1)));
-    ARIADNE_TEST_ASSERT(definitely(exact_set.inside(ExactBoxType{{-1.0_x,3.0_x},{0.0_x,6.0_x}}),Effort(1)));
-    ARIADNE_TEST_ASSERT(definitely(real_set.overlaps(other),Effort(1)));
-    ARIADNE_TEST_ASSERT(definitely(real_set.covers(ExactBoxType{{0.5_x,1.5_x},{2.0_x,3.0_x}}),Effort(1)));
-    ARIADNE_TEST_ASSERT(definitely(real_set.separated(ExactBoxType{{5.0_x,6.0_x},{5.0_x,6.0_x}}),Effort(1)));
-    ARIADNE_TEST_ASSERT(definitely(real_set.inside(ExactBoxType{{-1.0_x,3.0_x},{0.0_x,6.0_x}}),Effort(1)));
-    ARIADNE_TEST_ASSERT(definitely(subset(box,cast_exact_box(real_set.bounding_box()))));
+    ARIADNE_TESTING_EXPECT_EQUAL(exact_copy->dimension(), 2u);
+    ARIADNE_TESTING_EXPECT_EQUAL(approximate_copy->dimension(), 2u);
+    ARIADNE_TESTING_EXPECT_EQUAL(real_copy->dimension(), 2u);
+    ARIADNE_TESTING_PROVE(definitely(exact_set.overlaps(other),Effort(1)));
+    ARIADNE_TESTING_PROVE(definitely(exact_set.inside(ExactBoxType{{-1.0_x,3.0_x},{0.0_x,6.0_x}}),Effort(1)));
+    ARIADNE_TESTING_PROVE(definitely(real_set.overlaps(other),Effort(1)));
+    ARIADNE_TESTING_PROVE(definitely(real_set.covers(ExactBoxType{{0.5_x,1.5_x},{2.0_x,3.0_x}}),Effort(1)));
+    ARIADNE_TESTING_PROVE(definitely(real_set.separated(ExactBoxType{{5.0_x,6.0_x},{5.0_x,6.0_x}}),Effort(1)));
+    ARIADNE_TESTING_PROVE(definitely(real_set.inside(ExactBoxType{{-1.0_x,3.0_x},{0.0_x,6.0_x}}),Effort(1)));
+    ARIADNE_TESTING_PROVE(definitely(subset(box,cast_exact_box(real_set.bounding_box()))));
     std::ostringstream repr;
     exact_set._write(repr); approximate_set._write(repr); real_set._write(repr);
-    ARIADNE_TEST_ASSERT(!repr.str().empty());
+    ARIADNE_TESTING_PROVE(!repr.str().empty());
 }
 
-int main() {
-    ARIADNE_TEST_CALL(test_box_construction_and_widening());
-    ARIADNE_TEST_CALL(test_box_metrics_and_products());
-    ARIADNE_TEST_CALL(test_box_operations());
-    ARIADNE_TEST_CALL(test_box_parsing());
-    TestBoxType<FloatDPExactBox>().test();
+};
 
-    return ARIADNE_TEST_FAILURES;
+int main(int argc, char** argv) {
+    ARIADNE_TESTING_SUITE("test_box");
+    ARIADNE_TESTING_ADD_TEST(TestBox, test_box_construction_and_widening);
+    ARIADNE_TESTING_ADD_TEST(TestBox, test_box_metrics_and_products);
+    ARIADNE_TESTING_ADD_TEST(TestBox, test_box_operations);
+    ARIADNE_TESTING_ADD_TEST(TestBox, test_box_parsing);
+    ARIADNE_TESTING_ADD_TEST(TestBoxType<FloatDPExactBox>, test_geometric_predicates);
+    ARIADNE_TESTING_ADD_TEST(TestBoxType<FloatDPExactBox>, test_vertices);
+    return ARIADNE_TESTING_RUN_TESTS_WITH_ARGS(argc, argv);
 }

@@ -10,8 +10,8 @@ set(UNIT_TESTS
 )
 foreach(TEST IN LISTS UNIT_TESTS)
     add_executable(${TEST} ${TEST}.cpp)
-    target_link_libraries(${TEST} PRIVATE ariadne-geometry geometry)
-    add_test(NAME ${TEST} COMMAND $<TARGET_FILE:${TEST}>)
+    target_link_libraries(${TEST} PRIVATE ariadne-geometry geometry ariadne-testing)
+    add_test(NAME ${TEST} COMMAND $<TARGET_FILE:${TEST}> --concise)
     set_property(TEST ${TEST} PROPERTY LABELS "geometry")
     if(WIN32)
         set_tests_properties(${TEST} PROPERTIES

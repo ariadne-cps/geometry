@@ -7,7 +7,7 @@
 #include "geometry/set_wrapper.hpp"
 #include "geometry/union_of_intervals.hpp"
 #include "geometry/interval_set.hpp"
-#include "macro/testing.hpp"
+#include "ariadne-testing.hpp"
 #include <memory>
 #include <sstream>
 #include <type_traits>
@@ -16,78 +16,100 @@ using namespace Ariadne;
 static_assert(std::is_same_v<RegularLocatedSetInterface<ValidatedTag,RealVector>::BasicSetType,ExactBoxType>);
 static_assert(std::is_same_v<RegularLocatedSetInterface<ValidatedTag,Real>::BasicSetType,ExactIntervalType>);
 
+class TestSetAdapters : public Ariadne::Testing::ContextFixture {
+  public:
+    using ContextFixture::ContextFixture;
+
 template<class C> Void check_set_adapter() {
     ExactBoxType shape{{0.0_x,1.0_x}}, inner{{0.25_x,0.75_x}}, outside{{2.0_x,3.0_x}}, enclosing{{-1.0_x,2.0_x}};
     using W=WrapperType<ExactBoxType,C>;
     W wrapper(shape);
     C handle(shape);
     C cloned=wrap<C>(wrapper);
-    ARIADNE_TEST_EQUALS(handle.dimension(),1u);
-    ARIADNE_TEST_EQUALS(cloned.dimension(),1u);
+    ARIADNE_TESTING_EXPECT_EQUAL(handle.dimension(), 1u);
+    ARIADNE_TESTING_EXPECT_EQUAL(cloned.dimension(), 1u);
     if constexpr(requires { handle.overlaps(inner); }) {
-        ARIADNE_TEST_ASSERT(definitely(handle.overlaps(inner)));
-        ARIADNE_TEST_ASSERT(!definitely(handle.overlaps(outside)));
+        ARIADNE_TESTING_PROVE(definitely(handle.overlaps(inner)));
+        ARIADNE_TESTING_PROVE(!definitely(handle.overlaps(outside)));
     }
     if constexpr(requires { handle.covers(inner); }) {
-        ARIADNE_TEST_ASSERT(definitely(handle.covers(inner)));
-        ARIADNE_TEST_ASSERT(!definitely(handle.covers(outside)));
+        ARIADNE_TESTING_PROVE(definitely(handle.covers(inner)));
+        ARIADNE_TESTING_PROVE(!definitely(handle.covers(outside)));
     }
     if constexpr(requires { handle.separated(outside); }) {
-        ARIADNE_TEST_ASSERT(definitely(handle.separated(outside)));
-        ARIADNE_TEST_ASSERT(!definitely(handle.separated(inner)));
+        ARIADNE_TESTING_PROVE(definitely(handle.separated(outside)));
+        ARIADNE_TESTING_PROVE(!definitely(handle.separated(inner)));
     }
     if constexpr(requires { handle.inside(enclosing); }) {
-        ARIADNE_TEST_ASSERT(definitely(handle.inside(enclosing)));
-        ARIADNE_TEST_ASSERT(!definitely(handle.inside(outside)));
-        ARIADNE_TEST_ASSERT(same(cast_exact_box(handle.bounding_box()),shape));
+        ARIADNE_TESTING_PROVE(definitely(handle.inside(enclosing)));
+        ARIADNE_TESTING_PROVE(!definitely(handle.inside(outside)));
+        ARIADNE_TESTING_PROVE(same(cast_exact_box(handle.bounding_box()),shape));
     }
     std::ostringstream expected,actual,direct;
     expected<<shape; actual<<handle; direct<<wrapper;
-    ARIADNE_TEST_EQUALS(actual.str(),expected.str());
-    ARIADNE_TEST_EQUALS(direct.str(),expected.str());
+    ARIADNE_TESTING_EXPECT_EQUAL(actual.str(), expected.str());
+    ARIADNE_TESTING_EXPECT_EQUAL(direct.str(), expected.str());
 }
+
+    void test_open_set_adapter() { check_set_adapter<OpenSet<ValidatedTag,RealVector>>(); }
+    void test_closed_set_adapter() { check_set_adapter<ClosedSet<ValidatedTag,RealVector>>(); }
+    void test_overt_set_adapter() { check_set_adapter<OvertSet<ValidatedTag,RealVector>>(); }
+    void test_compact_set_adapter() { check_set_adapter<CompactSet<ValidatedTag,RealVector>>(); }
+    void test_regular_set_adapter() { check_set_adapter<RegularSet<ValidatedTag,RealVector>>(); }
+    void test_located_set_adapter() { check_set_adapter<LocatedSet<ValidatedTag,RealVector>>(); }
+    void test_regular_located_set_adapter() { check_set_adapter<RegularLocatedSet<ValidatedTag,RealVector>>(); }
 
 // These short identifiers are part of the predicate adapters' diagnostic API.
 Void test_predicate_operation_codes() {
-    ARIADNE_TEST_EQUALS(std::string(Overlap{}.code()),std::string("overlap"));
-    ARIADNE_TEST_EQUALS(std::string(Separated{}.code()),std::string("separated"));
-    ARIADNE_TEST_EQUALS(std::string(Inside{}.code()),std::string("inside"));
-    ARIADNE_TEST_EQUALS(std::string(Covers{}.code()),std::string("covers"));
+    ARIADNE_TESTING_EXPECT_EQUAL(std::string(Overlap{}.code()), std::string("overlap"));
+    ARIADNE_TESTING_EXPECT_EQUAL(std::string(Separated{}.code()), std::string("separated"));
+    ARIADNE_TESTING_EXPECT_EQUAL(std::string(Inside{}.code()), std::string("inside"));
+    ARIADNE_TESTING_EXPECT_EQUAL(std::string(Covers{}.code()), std::string("covers"));
 }
 
 Void test_set_adapters() {
-    ARIADNE_TEST_CALL((check_set_adapter<OpenSet<ValidatedTag,RealVector>>()));
-    ARIADNE_TEST_CALL((check_set_adapter<ClosedSet<ValidatedTag,RealVector>>()));
-    ARIADNE_TEST_CALL((check_set_adapter<OvertSet<ValidatedTag,RealVector>>()));
-    ARIADNE_TEST_CALL((check_set_adapter<CompactSet<ValidatedTag,RealVector>>()));
-    ARIADNE_TEST_CALL((check_set_adapter<RegularSet<ValidatedTag,RealVector>>()));
-    ARIADNE_TEST_CALL((check_set_adapter<LocatedSet<ValidatedTag,RealVector>>()));
-    ARIADNE_TEST_CALL((check_set_adapter<RegularLocatedSet<ValidatedTag,RealVector>>()));
+
+
+
+
+
+
+
     EuclideanSpace space(3u);
-    ARIADNE_TEST_EQUALS(space.dimension(),3u);
+    ARIADNE_TESTING_EXPECT_EQUAL(space.dimension(), 3u);
     UnionOfIntervals<FloatDP> intervals({{0,1}},dp);
     RegularSet<ValidatedTag,Real> regular(intervals);
-    ARIADNE_TEST_ASSERT(definitely(regular.covers(ExactIntervalType(0.25_x,0.75_x))));
-    ARIADNE_TEST_ASSERT(definitely(regular.separated(ExactIntervalType(2,3))));
+    ARIADNE_TESTING_PROVE(definitely(regular.covers(ExactIntervalType(0.25_x,0.75_x))));
+    ARIADNE_TESTING_PROVE(definitely(regular.separated(ExactIntervalType(2,3))));
     auto open=wrap_open(intervals);
-    ARIADNE_TEST_EQUALS(open.dimension(),1u);
-    ARIADNE_TEST_ASSERT(definitely(open.overlaps(ExactIntervalType(0.25_x,0.75_x))));
-    ARIADNE_TEST_ASSERT(definitely(open.covers(ExactIntervalType(0.25_x,0.75_x))));
+    ARIADNE_TESTING_EXPECT_EQUAL(open.dimension(), 1u);
+    ARIADNE_TESTING_PROVE(definitely(open.overlaps(ExactIntervalType(0.25_x,0.75_x))));
+    ARIADNE_TESTING_PROVE(definitely(open.covers(ExactIntervalType(0.25_x,0.75_x))));
     std::unique_ptr<SetInterfaceBase<Real>> cloned(open.reference().clone());
-    ARIADNE_TEST_EQUALS(cloned->dimension(),1u);
+    ARIADNE_TESTING_EXPECT_EQUAL(cloned->dimension(), 1u);
     IntervalSet<FloatDPUpperBound> interval(UpperIntervalType(0,1));
     CompactSet<ValidatedTag,Real> compact(interval);
-    ARIADNE_TEST_EQUALS(compact.dimension(),1u);
-    ARIADNE_TEST_ASSERT(definitely(compact.inside(ExactIntervalType(-1,2))));
-    ARIADNE_TEST_ASSERT(definitely(compact.separated(ExactIntervalType(2,3))));
-    ARIADNE_TEST_ASSERT(same(cast_exact_interval(compact.bounding_box()),ExactIntervalType(0,1)));
+    ARIADNE_TESTING_EXPECT_EQUAL(compact.dimension(), 1u);
+    ARIADNE_TESTING_PROVE(definitely(compact.inside(ExactIntervalType(-1,2))));
+    ARIADNE_TESTING_PROVE(definitely(compact.separated(ExactIntervalType(2,3))));
+    ARIADNE_TESTING_PROVE(same(cast_exact_interval(compact.bounding_box()),ExactIntervalType(0,1)));
     std::unique_ptr<SetInterfaceBase<Real>> compact_clone(compact.reference().clone());
-    ARIADNE_TEST_EQUALS(compact_clone->dimension(),1u);
+    ARIADNE_TESTING_EXPECT_EQUAL(compact_clone->dimension(), 1u);
     std::ostringstream text; text<<compact;
-    ARIADNE_TEST_ASSERT(!text.str().empty());
+    ARIADNE_TESTING_PROVE(!text.str().empty());
 }
-Int main() {
-    ARIADNE_TEST_CALL(test_set_adapters());
-    ARIADNE_TEST_CALL(test_predicate_operation_codes());
-    return ARIADNE_TEST_FAILURES;
+};
+
+int main(int argc, char** argv) {
+    ARIADNE_TESTING_SUITE("test_set_adapters");
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_set_adapters);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_predicate_operation_codes);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_open_set_adapter);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_closed_set_adapter);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_overt_set_adapter);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_compact_set_adapter);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_regular_set_adapter);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_located_set_adapter);
+    ARIADNE_TESTING_ADD_TEST(TestSetAdapters, test_regular_located_set_adapter);
+    return ARIADNE_TESTING_RUN_TESTS_WITH_ARGS(argc, argv);
 }
