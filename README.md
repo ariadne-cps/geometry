@@ -8,10 +8,11 @@
 [![codecov](https://codecov.io/gh/ariadne-cps/geometry/branch/main/graph/badge.svg)](https://codecov.io/gh/ariadne-cps/geometry)
 
 Standalone C++20 geometry layer of Ariadne: points, boxes, geometric set interfaces and wrappers, validated predicates and finite unions of intervals.
+Although independently maintained and usable, this repository is also part of the [Ariadne repository structure](https://github.com/ariadne-cps/ariadne/blob/main/doc/structure.md).
 
 ## Dependencies
 
-Geometry depends directly on [ariadne-cps/algebra](https://github.com/ariadne-cps/algebra), and on [ariadne-cps/configuration](https://github.com/ariadne-cps/configuration) for shared build configuration. Algebra provides Interval, Numeric and other lower libraries transitively.
+Geometry depends directly on [ariadne-cps/algebra](https://github.com/ariadne-cps/algebra), and on [ariadne-cps/build](https://github.com/ariadne-cps/build) for shared build configuration. Algebra provides Interval, Numeric and other lower libraries transitively.
 
 ## Build and test
 
