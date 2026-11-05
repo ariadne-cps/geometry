@@ -1,4 +1,4 @@
-from pyariadne import *
+from pyariadne_geometry import *
 
 
 def test_geometry():

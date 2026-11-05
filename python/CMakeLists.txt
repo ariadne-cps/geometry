@@ -12,7 +12,7 @@ if(Python3_FOUND)
     add_subdirectory(bindings)
 
     if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
-        ariadne_finalize_python_module(NAME geometry)
+        ariadne_finalize_python_module(NAME geometry MODULE_IMPORT_NAME pyariadne_geometry)
 
         # Keep the installed Python module inside the specified CMake prefix.
         if(WIN32)

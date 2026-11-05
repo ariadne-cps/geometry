@@ -37,5 +37,6 @@ target_link_libraries(pyariadne-geometry INTERFACE
 
 ariadne_add_python_module(
     NAME geometry
+    MODULE_IMPORT_NAME pyariadne_geometry
     MODULE_SOURCE geometry_module.cpp
 )

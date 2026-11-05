@@ -1,6 +1,8 @@
 #ifndef ARIADNE_GEOMETRY_MODULE_HPP
 #define ARIADNE_GEOMETRY_MODULE_HPP
 
+#include "ariadne-algebra.hpp"
+
 #include "geometry/declarations.hpp"
 #include "geometry/value_traits.hpp"
 #include "geometry/point.hpp"

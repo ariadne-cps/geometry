@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fundamental geometry; counterpart of tutorials/tutorial_geometry (C++)."""
-from pyariadne import *
+from pyariadne_geometry import *
 
 
 def show(label, value):
