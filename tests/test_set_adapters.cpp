@@ -22,7 +22,7 @@ class TestSetAdapters : public Ariadne::Testing::ContextFixture {
 
 template<class C> Void check_set_adapter() {
     ExactBoxType shape{{0.0_x,1.0_x}}, inner{{0.25_x,0.75_x}}, outside{{2.0_x,3.0_x}}, enclosing{{-1.0_x,2.0_x}};
-    using W=WrapperType<ExactBoxType,C>;
+    using W=SetWrapperType<ExactBoxType,C>;
     W wrapper(shape);
     C handle(shape);
     C cloned=wrap<C>(wrapper);

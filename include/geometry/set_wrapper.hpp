@@ -203,11 +203,11 @@ template<class S, class P, class T> struct WrapperTrait<S,RegularSet<P,T>> { typ
 template<class S, class P, class T> struct WrapperTrait<S,LocatedSet<P,T>> { typedef LocatedSetWrapper<S,P,T> Type; };
 template<class S, class P, class T> struct WrapperTrait<S,RegularLocatedSet<P,T>> { typedef RegularLocatedSetWrapper<S,P,T> Type; };
 
-template<class S, class C> using WrapperType = typename WrapperTrait<S,C>::Type;
+template<class S, class C> using SetWrapperType = typename WrapperTrait<S,C>::Type;
 
 template<class C, class S> C wrap(S s) {
     if constexpr (DerivedFrom<S,typename C::Interface>) { return C(s.clone()); }
-    else { return C(std::make_shared<WrapperType<S,C>>(s)); } }
+    else { return C(std::make_shared<SetWrapperType<S,C>>(s)); } }
 
 
 template<class P, class T> template<class S> requires AnOpenSet<S,P,T> OpenSet<P,T>::OpenSet(S const& s)
