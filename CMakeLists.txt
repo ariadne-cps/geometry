@@ -21,8 +21,10 @@ endif()
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/.git")
     # Check direct occurrences only; child commits guarantee internal consistency.
+    # Testing is a development-only dependency and is deliberately excluded
+    # from cross-repository commit consistency checks.
     require_same_dependency_commit(Build CHAINS
-        "build" "algebra|build" "testing|build")
+        "build" "algebra|build")
 endif()
 
 setup_project()
