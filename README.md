@@ -36,5 +36,5 @@ The C++ library installs as `ariadne-geometry` together with the public headers 
 
 ## Tutorials
 
-- C++: `tutorials/tutorial_geometry/tutorial_geometry.cpp` (build separately against an installed Geometry library).
-- Python: `python/tutorials/tutorial_geometry.py`.
+- C++: `tutorial/tutorial_geometry.cpp` (build separately against an installed Geometry library).
+- Python: `python/tutorial.py`.
