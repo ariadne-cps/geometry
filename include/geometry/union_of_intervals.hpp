@@ -1,9 +1,10 @@
 /***************************************************************************
- *            union_of_intervals.hpp
+ *            geometry/union_of_intervals.hpp
  *
  *  Copyright  2020  Pieter Collins
  *
  ****************************************************************************/
+
 
 /*
  *  This file is part of Ariadne.

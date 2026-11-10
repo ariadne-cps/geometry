@@ -1,5 +1,5 @@
 /***************************************************************************
- *            box.decl.hpp
+ *            geometry/box.decl.hpp
  *
  *  Copyright  2008-20  Alberto Casagrande, Pieter Collins
  *

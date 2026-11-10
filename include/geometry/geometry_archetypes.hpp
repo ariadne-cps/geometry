@@ -1,5 +1,5 @@
 /***************************************************************************
- *            geometry_archetypes.hpp
+ *            geometry/geometry_archetypes.hpp
  *
  *  Copyright  2023  Pieter Collins
  *

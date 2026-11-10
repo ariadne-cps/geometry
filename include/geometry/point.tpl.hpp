@@ -1,9 +1,10 @@
 /***************************************************************************
- *            point.tpl.hpp
+ *            geometry/point.tpl.hpp
  *
  *  Copyright  2008-20  Alberto Casagrande, Pieter Collins
  *
  ****************************************************************************/
+
 
 /*
  *  This file is part of Ariadne.
