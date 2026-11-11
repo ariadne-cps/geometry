@@ -29,6 +29,7 @@
 #ifndef ARIADNE_MEASURABLE_SET_HPP
 #define ARIADNE_MEASURABLE_SET_HPP
 
+#include "geometry/set_interface.hpp"
 #include "interval/interval.hpp"
 #include "numeric/dyadic.hpp"
 #include "numeric/integer.hpp"
