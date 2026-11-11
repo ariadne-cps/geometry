@@ -26,7 +26,6 @@
  *  along with Ariadne Geometry.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 /** @file geometry/interval_set.hpp
  *  @brief Adapter exposing scalar intervals through geometric set interfaces.
  */
@@ -40,22 +39,26 @@
 
 namespace Ariadne {
 
-template<class U> class IntervalSetBase : public Interval<U> {
+template<class U>
+class IntervalSetBase : public Interval<U> {
   protected:
-    IntervalSetBase(Interval<U>&& ivl) : Interval<U>(ivl) { }
-    template<class UU> decltype(auto) _inside(Interval<UU> const& ivl) const { return inside(*this,ivl); }
-    template<class UU> decltype(auto) _separated(Interval<UU> const& ivl) const { return separated(*this,ivl); }
+    IntervalSetBase(Interval<U>&& ivl) : Interval<U>(ivl) {}
+    template<class UU>
+    decltype(auto) _inside(const Interval<UU>& ivl) const { return inside(*this, ivl); }
+    template<class UU>
+    decltype(auto) _separated(const Interval<UU>& ivl) const { return separated(*this, ivl); }
 };
 
-template<class U> class IntervalSet : public IntervalSetBase<U> {
+template<class U>
+class IntervalSet : public IntervalSetBase<U> {
   public:
-    IntervalSet(Interval<U>&& ivl) : IntervalSetBase<U>(std::move(ivl)) { }
-    Interval<U> const& bounding_box() const { return *this; }
-    template<class UU> decltype(auto) inside(Interval<UU> const& ivl) const { return this->_inside(ivl); }
-    template<class UU> decltype(auto) separated(Interval<UU> const& ivl) const { return this->_separated(ivl); }
+    IntervalSet(Interval<U>&& ivl) : IntervalSetBase<U>(std::move(ivl)) {}
+    const Interval<U>& bounding_box() const { return *this; }
+    template<class UU>
+    decltype(auto) inside(const Interval<UU>& ivl) const { return this->_inside(ivl); }
+    template<class UU>
+    decltype(auto) separated(const Interval<UU>& ivl) const { return this->_separated(ivl); }
 };
-
-
 
 } // namespace Ariadne
 

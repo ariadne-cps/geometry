@@ -33,32 +33,33 @@
 
 namespace Ariadne {
 
-template<class IVL> class Box;
-template<class IVL> class VariablesBox;
+template<class IVL>
+class Box;
+template<class IVL>
+class VariablesBox;
 
 //!@{
 //! \relates Box
 //! \name Type synonyms
-using DyadicBox = Box<DyadicInterval>; //!< <p/>
-using DecimalBox = Box<DecimalInterval>; //!< <p/>
+using DyadicBox = Box<DyadicInterval>;     //!< <p/>
+using DecimalBox = Box<DecimalInterval>;   //!< <p/>
 using RationalBox = Box<RationalInterval>; //!< <p/>
-using RealBox = Box<RealInterval>; //!< <p/>
+using RealBox = Box<RealInterval>;         //!< <p/>
 
-using FloatDPExactBox = Box<FloatDPExactInterval>; //!< <p/>
-using FloatDPBallBox = Box<FloatDPBallInterval>; //!< <p/>
-using FloatDPBoundsBox = Box<FloatDPBoundsInterval>; //!< <p/>
-using FloatDPUpperBox = Box<FloatDPUpperInterval>; //!< <p/>
-using FloatDPLowerBox = Box<FloatDPLowerInterval>; //!< <p/>
+using FloatDPExactBox = Box<FloatDPExactInterval>;             //!< <p/>
+using FloatDPBallBox = Box<FloatDPBallInterval>;               //!< <p/>
+using FloatDPBoundsBox = Box<FloatDPBoundsInterval>;           //!< <p/>
+using FloatDPUpperBox = Box<FloatDPUpperInterval>;             //!< <p/>
+using FloatDPLowerBox = Box<FloatDPLowerInterval>;             //!< <p/>
 using FloatDPApproximateBox = Box<FloatDPApproximateInterval>; //!< <p/>
 
-using FloatMPExactBox = Box<FloatMPExactInterval>; //!< <p/>
-using FloatMPBallBox = Box<FloatMPBallInterval>; //!< <p/>
-using FloatMPBoundsBox = Box<FloatMPBoundsInterval>; //!< <p/>
-using FloatMPUpperBox = Box<FloatMPUpperInterval>; //!< <p/>
-using FloatMPLowerBox = Box<FloatMPLowerInterval>; //!< <p/>
+using FloatMPExactBox = Box<FloatMPExactInterval>;             //!< <p/>
+using FloatMPBallBox = Box<FloatMPBallInterval>;               //!< <p/>
+using FloatMPBoundsBox = Box<FloatMPBoundsInterval>;           //!< <p/>
+using FloatMPUpperBox = Box<FloatMPUpperInterval>;             //!< <p/>
+using FloatMPLowerBox = Box<FloatMPLowerInterval>;             //!< <p/>
 using FloatMPApproximateBox = Box<FloatMPApproximateInterval>; //!< <p/>
 //!@}
-
 
 //!@{
 //! \ingroup GeometryModule
@@ -84,17 +85,17 @@ typedef FloatDPLowerBox LowerBoxType;
 typedef FloatDPApproximateBox ApproximateBoxType;
 //!@}
 
-template<class IVL> class BoxSet;
+template<class IVL>
+class BoxSet;
 //!@{
 //! \relates BoxSet
 //! \name Type synonyms
-typedef BoxSet<ExactIntervalType> ExactBoxSetType; //!< <p/>
-typedef BoxSet<UpperIntervalType> UpperBoxSetType; //!< <p/>
+typedef BoxSet<ExactIntervalType> ExactBoxSetType;             //!< <p/>
+typedef BoxSet<UpperIntervalType> UpperBoxSetType;             //!< <p/>
 typedef BoxSet<ApproximateIntervalType> ApproximateBoxSetType; //!< <p/>
-typedef BoxSet<RealInterval> RealBoxSet; //!< <p/>
+typedef BoxSet<RealInterval> RealBoxSet;                       //!< <p/>
 //!@}
 
 } // namespace Ariadne
-
 
 #endif /* ARIADNE_BOX_HPP */

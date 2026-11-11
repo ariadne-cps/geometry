@@ -5,7 +5,6 @@
  *
  ****************************************************************************/
 
-
 /*
  *  This file is part of Ariadne Geometry.
  *
@@ -30,19 +29,25 @@
 #ifndef ARIADNE_UNION_OF_INTERVALS_HPP
 #define ARIADNE_UNION_OF_INTERVALS_HPP
 
-#include "interval/interval.hpp"
 #include "geometry/set_interface.hpp"
+#include "interval/interval.hpp"
 
 namespace Ariadne {
 
 struct LowerUpperBoundLess {
-    template<class U> decltype(auto) operator() (Interval<U> const& ivl1, Interval<U> const& ivl2) const {
-        return ivl1.lower_bound()<ivl2.lower_bound() or (ivl1.lower_bound()==ivl2.lower_bound() and ivl1.upper_bound()<ivl2.upper_bound()); }
+    template<class U>
+    decltype(auto) operator()(const Interval<U>& ivl1, const Interval<U>& ivl2) const {
+        return ivl1.lower_bound() < ivl2.lower_bound() or (ivl1.lower_bound() == ivl2.lower_bound() and ivl1.upper_bound() < ivl2.upper_bound());
+    }
 };
 
-template<class U> class UnionOfIntervals {
-  private: public:
+template<class U>
+class UnionOfIntervals {
+  private:
+
+  public:
     List<Interval<U>> _data;
+
   public:
     typedef SetTraits<Real>::BasicSetType BasicSetType;
 
@@ -50,27 +55,36 @@ template<class U> class UnionOfIntervals {
     typedef typename List<Interval<U>>::Iterator Iterator;
     typedef typename List<Interval<U>>::ConstIterator ConstIterator;
 
-    explicit UnionOfIntervals(List<Interval<U>> const& ivls) : _data(ivls) { this->_sort(); this->_combine(); }
+    explicit UnionOfIntervals(const List<Interval<U>>& ivls) : _data(ivls) {
+        this->_sort();
+        this->_combine();
+    }
 
-    template<class UU> requires Constructible<U,UU>
-        UnionOfIntervals(UnionOfIntervals<UU> ivls)
-            : _data(ivls._data) { }
-    template<class UU, class... PRS> requires Constructible<U,UU,PRS...>
-        UnionOfIntervals(List<Interval<UU>> ivls, PRS... prs)
-            : _data(Ariadne::apply([&](Interval<UU>const& ivl){return Interval<U>(ivl,prs...);},ivls)) { this->_sort(); this->_combine(); }
+    template<class UU>
+        requires Constructible<U, UU>
+    UnionOfIntervals(UnionOfIntervals<UU> ivls)
+        : _data(ivls._data) {}
+    template<class UU, class... PRS>
+        requires Constructible<U, UU, PRS...>
+    UnionOfIntervals(List<Interval<UU>> ivls, PRS... prs)
+        : _data(Ariadne::apply([&](const Interval<UU>& ivl) { return Interval<U>(ivl, prs...); }, ivls)) {
+        this->_sort();
+        this->_combine();
+    }
 
-    UnionOfIntervals(InitializerList<Interval<U>> ivls) : UnionOfIntervals(List<Interval<U>>(ivls)) { }
-    template<class... PRS> requires Constructible<U,Dyadic,PRS...>
-        UnionOfIntervals(InitializerList<Interval<Dyadic>> ivls, PRS... prs) :
-            UnionOfIntervals(List<Interval<Dyadic>>(ivls),prs...) { }
+    UnionOfIntervals(InitializerList<Interval<U>> ivls) : UnionOfIntervals(List<Interval<U>>(ivls)) {}
+    template<class... PRS>
+        requires Constructible<U, Dyadic, PRS...>
+    UnionOfIntervals(InitializerList<Interval<Dyadic>> ivls, PRS... prs) : UnionOfIntervals(List<Interval<Dyadic>>(ivls), prs...) {}
 
     UnionOfIntervals<U> create(IntervalDomainType bs) const {
-        static_assert(Constructible<Interval<U>,IntervalDomainType> or Assignable<Interval<U>,DyadicInterval>);
-        if constexpr (Constructible<Interval<U>,IntervalDomainType>) {
+        static_assert(Constructible<Interval<U>, IntervalDomainType> or Assignable<Interval<U>, DyadicInterval>);
+        if constexpr (Constructible<Interval<U>, IntervalDomainType>) {
             return UnionOfIntervals<U>({Interval<U>(bs)});
         } else {
-            ARIADNE_PRECONDITION(this->_data.size()!=0);
-            Interval<U> bivl=this->_data.front(); bivl=DyadicInterval(bs);
+            ARIADNE_PRECONDITION(this->_data.size() != 0);
+            Interval<U> bivl = this->_data.front();
+            bivl = DyadicInterval(bs);
             return UnionOfIntervals<U>({bivl});
         }
     }
@@ -81,51 +95,58 @@ template<class U> class UnionOfIntervals {
     ConstIterator end() const { return this->_data.end(); }
 
     SizeOne dimension() const { return SizeOne(); }
-    Bool separated(IntervalDomainType bs) const { return not intersect(*this,this->create(bs)); }
-    Bool overlaps(IntervalDomainType bs) const { return intersect(*this,this->create(bs)); }
-    Bool covers(IntervalDomainType bs) const { return subset(this->create(bs),*this); }
-    Bool inside(IntervalDomainType bs) const { return subset(*this,this->create(bs)); }
+    Bool separated(IntervalDomainType bs) const { return not intersect(*this, this->create(bs)); }
+    Bool overlaps(IntervalDomainType bs) const { return intersect(*this, this->create(bs)); }
+    Bool covers(IntervalDomainType bs) const { return subset(this->create(bs), *this); }
+    Bool inside(IntervalDomainType bs) const { return subset(*this, this->create(bs)); }
     Interval<U> bounding_box() const;
 
     MeasureType measure() const;
-    friend MeasureType measure(UnionOfIntervals<U> const& ivls) { return ivls.measure(); }
+    friend MeasureType measure(const UnionOfIntervals<U>& ivls) { return ivls.measure(); }
 
-    friend UnionOfIntervals<U> intersection(UnionOfIntervals<U> const& ivls1, IntervalDomainType const& ivl2) {
-        return intersection(ivls1,ivls1.create(ivl2)); }
-    friend UnionOfIntervals<U> intersection(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
-        return UnionOfIntervals<U>::_intersection(ivls1,ivls2); }
-    friend UnionOfIntervals<U> join(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
-        return UnionOfIntervals<U>::_join(ivls1,ivls2); }
-    friend Bool intersect(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
-        return UnionOfIntervals<U>::_intersect(ivls1,ivls2); }
-    friend Bool subset(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
-        return UnionOfIntervals<U>::_subset(ivls1,ivls2); }
-    friend OutputStream& operator<<(OutputStream& os, UnionOfIntervals<U> const& ivls) { return os << ivls._data; }
+    friend UnionOfIntervals<U> intersection(const UnionOfIntervals<U>& ivls1, const IntervalDomainType& ivl2) {
+        return intersection(ivls1, ivls1.create(ivl2));
+    }
+    friend UnionOfIntervals<U> intersection(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
+        return UnionOfIntervals<U>::_intersection(ivls1, ivls2);
+    }
+    friend UnionOfIntervals<U> join(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
+        return UnionOfIntervals<U>::_join(ivls1, ivls2);
+    }
+    friend Bool intersect(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
+        return UnionOfIntervals<U>::_intersect(ivls1, ivls2);
+    }
+    friend Bool subset(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
+        return UnionOfIntervals<U>::_subset(ivls1, ivls2);
+    }
+    friend OutputStream& operator<<(OutputStream& os, const UnionOfIntervals<U>& ivls) { return os << ivls._data; }
+
   private:
     // With no interval supplying a precision, use the numeric type's
     // default characteristics for the zero measure of an empty union.
     static MeasureType _zero_measure() {
-        if constexpr (Constructible<MeasureType,Nat>) {
+        if constexpr (Constructible<MeasureType, Nat>) {
             return MeasureType(0u);
         } else if constexpr (Constructible<CharacteristicsType<U>>) {
-            return MeasureType(0u,CharacteristicsType<U>{});
+            return MeasureType(0u, CharacteristicsType<U>{});
         } else {
-            return MeasureType(0u,U::get_default_precision());
+            return MeasureType(0u, U::get_default_precision());
         }
     }
-    static UnionOfIntervals<U> _intersection(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2);
-    static UnionOfIntervals<U> _join(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2);
-    static Bool _intersect(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2);
-    static Bool _subset(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2);
+    static UnionOfIntervals<U> _intersection(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    static UnionOfIntervals<U> _join(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    static Bool _intersect(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    static Bool _subset(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
     Void _sort();
     Void _combine();
 };
 
-template<class U> UnionOfIntervals<U> interior(UnionOfIntervals<U> ivls, NegationType<U> eps) {
+template<class U>
+UnionOfIntervals<U> interior(UnionOfIntervals<U> ivls, NegationType<U> eps) {
     List<Interval<U>> rivls;
     rivls.reserve(ivls.size());
-    for (auto ivl : ivls) {
-        Interval<U> rivl(ivl.lower_bound()+eps, ivl.upper_bound()-eps);
+    for (auto ivl: ivls) {
+        Interval<U> rivl(ivl.lower_bound() + eps, ivl.upper_bound() - eps);
         if (not rivl.is_empty()) {
             rivls.append(rivl);
         }
@@ -133,34 +154,40 @@ template<class U> UnionOfIntervals<U> interior(UnionOfIntervals<U> ivls, Negatio
     return UnionOfIntervals<U>(rivls);
 }
 
-
-template<class U> UnionOfIntervals<U> UnionOfIntervals<U>::_intersection(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
+template<class U>
+UnionOfIntervals<U> UnionOfIntervals<U>::_intersection(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
     // TODO: Make more efficient
     List<Interval<U>> rivls;
-    auto iter1=ivls1.begin();
-    auto iter2=ivls2.begin();
-    while (iter1!=ivls1.end() && iter2!=ivls2.end()) {
+    auto iter1 = ivls1.begin();
+    auto iter2 = ivls2.begin();
+    while (iter1 != ivls1.end() && iter2 != ivls2.end()) {
         if (iter1->lower_bound() >= iter2->upper_bound()) {
             ++iter2;
         } else if (iter2->lower_bound() >= iter1->upper_bound()) {
             ++iter1;
         } else {
-            rivls.append(Interval<U>(max(iter1->lower_bound(),iter2->lower_bound()),min(iter1->upper_bound(),iter2->upper_bound())));
-            if (iter1->upper_bound()<iter2->upper_bound()) { ++iter1; } else { ++iter2; }
+            rivls.append(Interval<U>(max(iter1->lower_bound(), iter2->lower_bound()), min(iter1->upper_bound(), iter2->upper_bound())));
+            if (iter1->upper_bound() < iter2->upper_bound()) {
+                ++iter1;
+            } else {
+                ++iter2;
+            }
         }
     }
     return UnionOfIntervals<U>(rivls);
 }
 
-template<class U> UnionOfIntervals<U> UnionOfIntervals<U>::_join(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
+template<class U>
+UnionOfIntervals<U> UnionOfIntervals<U>::_join(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
     // TODO: Make more efficient
-    return UnionOfIntervals<U>(catenate(ivls1._data,ivls2._data));
+    return UnionOfIntervals<U>(catenate(ivls1._data, ivls2._data));
 }
 
-template<class U> Bool UnionOfIntervals<U>::_intersect(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
-    auto iter1=ivls1.begin();
-    auto iter2=ivls2.begin();
-    while (iter1!=ivls1.end() && iter2!=ivls2.end()) {
+template<class U>
+Bool UnionOfIntervals<U>::_intersect(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
+    auto iter1 = ivls1.begin();
+    auto iter2 = ivls2.begin();
+    while (iter1 != ivls1.end() && iter2 != ivls2.end()) {
         if (iter1->lower_bound() >= iter2->upper_bound()) {
             ++iter2;
         } else if (iter1->upper_bound() <= iter2->lower_bound()) {
@@ -172,10 +199,11 @@ template<class U> Bool UnionOfIntervals<U>::_intersect(UnionOfIntervals<U> const
     return false;
 }
 
-template<class U> Bool UnionOfIntervals<U>::_subset(UnionOfIntervals<U> const& ivls1, UnionOfIntervals<U> const& ivls2) {
-    auto iter1=ivls1.begin();
-    auto iter2=ivls2.begin();
-    while (iter1!=ivls1.end() && iter2!=ivls2.end()) {
+template<class U>
+Bool UnionOfIntervals<U>::_subset(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
+    auto iter1 = ivls1.begin();
+    auto iter2 = ivls2.begin();
+    while (iter1 != ivls1.end() && iter2 != ivls2.end()) {
         if (iter1->lower_bound() >= iter2->upper_bound()) {
             ++iter2;
         } else if (iter1->lower_bound() >= iter2->lower_bound() && iter1->upper_bound() <= iter2->upper_bound()) {
@@ -184,50 +212,55 @@ template<class U> Bool UnionOfIntervals<U>::_subset(UnionOfIntervals<U> const& i
             return false;
         }
     }
-    if (iter1==ivls1.end()) {
+    if (iter1 == ivls1.end()) {
         return true;
     } else {
         return false;
     }
 }
 
-
-template<class U> auto UnionOfIntervals<U>::measure() const -> MeasureType {
+template<class U>
+auto UnionOfIntervals<U>::measure() const -> MeasureType {
     MeasureType r = _data.empty() ? _zero_measure() : MeasureType(nul(_data.front().width()));
-    for (auto ivl : this->_data) {
-        r+=ivl.width();
+    for (auto ivl: this->_data) {
+        r += ivl.width();
     }
     return r;
 }
 
-template<class U> Interval<U> UnionOfIntervals<U>::bounding_box() const {
+template<class U>
+Interval<U> UnionOfIntervals<U>::bounding_box() const {
     ARIADNE_PRECONDITION(!_data.empty());
-    return Interval<U>(this->_data.front().lower_bound(),this->_data.back().upper_bound());
+    return Interval<U>(this->_data.front().lower_bound(), this->_data.back().upper_bound());
 }
 
-template<class U> Void UnionOfIntervals<U>::_sort() {
-    if (this->_data.size()<2u) { return; }
-    std::sort(this->_data.begin(),this->_data.end(),LowerUpperBoundLess());
+template<class U>
+Void UnionOfIntervals<U>::_sort() {
+    if (this->_data.size() < 2u) {
+        return;
+    }
+    std::sort(this->_data.begin(), this->_data.end(), LowerUpperBoundLess());
 }
 
-template<class U> Void UnionOfIntervals<U>::_combine() {
+template<class U>
+Void UnionOfIntervals<U>::_combine() {
     if (_data.empty()) {
         return;
     }
 
-    SizeType curr=0;
-    for (SizeType next=1; next<_data.size(); ++next) {
-        if (_data[next].lower_bound()<=_data[curr].upper_bound()) {
-            _data[curr].set_upper_bound(max(_data[curr].upper_bound(),_data[next].upper_bound()));
+    SizeType curr = 0;
+    for (SizeType next = 1; next < _data.size(); ++next) {
+        if (_data[next].lower_bound() <= _data[curr].upper_bound()) {
+            _data[curr].set_upper_bound(max(_data[curr].upper_bound(), _data[next].upper_bound()));
         } else {
             ++curr;
-            if (curr!=next) {
-                _data[curr]=_data[next];
+            if (curr != next) {
+                _data[curr] = _data[next];
             }
         }
     }
 
-    _data.resize(curr+1);
+    _data.resize(curr + 1);
 }
 
 } // namespace Ariadne

@@ -22,119 +22,143 @@
  *  along with Ariadne Geometry. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "pybind11.hpp"
-#include "algebra-utilities.hpp"
-#include "numeric_submodule.hpp"
-#include "interval-utilities.hpp"
+#include "geometry/box.hpp"
 #include "geometry/geometry.hpp"
 #include "geometry/point.hpp"
-
-#include "geometry/box.hpp"
 #include "geometry/union_of_intervals.hpp"
+#include "numeric_submodule.hpp"
+#include "pybind11.hpp"
 
-
-
+#include "algebra-utilities.hpp"
+#include "interval-utilities.hpp"
 
 namespace Ariadne {
 
+template<class F>
+OutputStream& operator<<(OutputStream& os, const PythonRepresentation<Bounds<F>>& x);
 
-template<class F> OutputStream& operator<<(OutputStream& os, const PythonRepresentation<Bounds<F>>& x);
+template<>
+struct PythonTemplateName<Point> {
+    static std::string get() { return "Point"; }
+};
+template<>
+struct PythonTemplateName<Box> {
+    static std::string get() { return "Box"; }
+};
 
-template<> struct PythonTemplateName<Point> { static std::string get() { return "Point"; } };
-template<> struct PythonTemplateName<Box> { static std::string get() { return "Box"; } };
+template<class X>
+struct PythonClassName<Point<X>> {
+    std::string get() const { return python_template_class_name<X>("Point"); }
+};
+template<class X>
+struct PythonClassName<Box<X>> {
+    std::string get() const { return python_template_class_name<X>("Box"); }
+};
 
-template<class X> struct PythonClassName<Point<X>> {
-    std::string get() const { return python_template_class_name<X>("Point"); } };
-template<class X> struct PythonClassName<Box<X>> {
-    std::string get() const { return python_template_class_name<X>("Box"); } };
+template<class UB>
+struct PythonClassName<Box<Interval<UB>>> {
+    std::string get() const { return python_class_name<UB>() + "Box"; }
+};
+template<>
+struct PythonClassName<Box<Interval<FloatDP>>> {
+    std::string get() const { return "FloatDPExactBox"; }
+};
+template<>
+struct PythonClassName<Box<Interval<FloatDPUpperBound>>> {
+    std::string get() const { return "FloatDPUpperBox"; }
+};
+template<>
+struct PythonClassName<Box<Interval<FloatDPLowerBound>>> {
+    std::string get() const { return "FloatDPLowerBox"; }
+};
+template<>
+struct PythonClassName<Box<Interval<FloatDPApproximation>>> {
+    std::string get() const { return "FloatDPApproximateBox"; }
+};
 
-template<class UB> struct PythonClassName<Box<Interval<UB>>> {
-    std::string get() const { return python_class_name<UB>()+"Box"; } };
-template<> struct PythonClassName<Box<Interval<FloatDP>>> {
-    std::string get() const { return "FloatDPExactBox"; } };
-template<> struct PythonClassName<Box<Interval<FloatDPUpperBound>>> {
-    std::string get() const { return "FloatDPUpperBox"; } };
-template<> struct PythonClassName<Box<Interval<FloatDPLowerBound>>> {
-    std::string get() const { return "FloatDPLowerBox"; } };
-template<> struct PythonClassName<Box<Interval<FloatDPApproximation>>> {
-    std::string get() const { return "FloatDPApproximateBox"; } };
-
-
-template<class UB> OutputStream& operator<<(OutputStream& os, const PythonRepresentation<Box<UB>>& repr) {
-    Box<UB> const& bx=repr.reference();
+template<class UB>
+OutputStream& operator<<(OutputStream& os, const PythonRepresentation<Box<UB>>& repr) {
+    const Box<UB>& bx = repr.reference();
     os << python_class_name<Box<UB>>() << "([";
-    for(SizeType i=0; i!=bx.dimension(); ++i) {
-        if(i!=0) { os << ','; }
+    for (SizeType i = 0; i != bx.dimension(); ++i) {
+        if (i != 0) {
+            os << ',';
+        }
         os << python_literal(bx[i]);
     }
     os << "])";
     return os;
 }
 
-template<class P, class T> class OpenSetWrapper;
-template<class P, class T> class ClosedSetWrapper;
-template<class P, class T> class OvertSetWrapper;
-template<class P, class T> class BoundedSetWrapper;
-template<class P, class T> class CompactSetWrapper;
-template<class P, class T> class RegularSetWrapper;
-template<class P, class T> class LocatedSetWrapper;
+template<class P, class T>
+class OpenSetWrapper;
+template<class P, class T>
+class ClosedSetWrapper;
+template<class P, class T>
+class OvertSetWrapper;
+template<class P, class T>
+class BoundedSetWrapper;
+template<class P, class T>
+class CompactSetWrapper;
+template<class P, class T>
+class RegularSetWrapper;
+template<class P, class T>
+class LocatedSetWrapper;
 
-template<class T> class OpenSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<OpenSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class OpenSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<OpenSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    OpenSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    OpenSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean covers(const BasicSetType& r) const { return this->get_override("covers")(r); }
     LowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class ClosedSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<ClosedSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class ClosedSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<ClosedSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    ClosedSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    ClosedSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean separated(const BasicSetType& r) const { return this->get_override("separated")(r); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-
-template<class T> class OvertSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<OvertSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class OvertSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<OvertSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    OvertSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    OvertSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-
-template<class T> class BoundedSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<BoundedSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class BoundedSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<BoundedSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
-    BoundedSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    BoundedSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean inside(const BasicSetType& r) const { return this->get_override("inside")(r); }
     BoundingSetType bounding_box() const { return this->get_override("bounding_box")(); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class CompactSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<CompactSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class CompactSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<CompactSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
-    CompactSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    CompactSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean separated(const BasicSetType& r) const { return this->get_override("separated")(r); }
     LowerKleenean inside(const BasicSetType& r) const { return this->get_override("inside")(r); }
@@ -143,12 +167,12 @@ template<class T> class CompactSetWrapper<EffectiveTag,T>
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class RegularSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<RegularSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class RegularSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<RegularSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    RegularSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    RegularSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     LowerKleenean covers(const BasicSetType& r) const { return this->get_override("covers")(r); }
@@ -156,13 +180,13 @@ template<class T> class RegularSetWrapper<EffectiveTag,T>
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class LocatedSetWrapper<EffectiveTag,T>
-  : public pybind11::wrapper<LocatedSetInterface<EffectiveTag,T>>
-{
+template<class T>
+class LocatedSetWrapper<EffectiveTag, T>
+    : public pybind11::wrapper<LocatedSetInterface<EffectiveTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
-    LocatedSetInterface<EffectiveTag,T>* clone() const { return this->get_override("clone")(); }
+    LocatedSetInterface<EffectiveTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     LowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     LowerKleenean separated(const BasicSetType& r) const { return this->get_override("separated")(r); }
@@ -172,66 +196,60 @@ template<class T> class LocatedSetWrapper<EffectiveTag,T>
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-
-
-
-template<class T> class OpenSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<OpenSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class OpenSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<OpenSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    OpenSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    OpenSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean covers(const BasicSetType& r) const { return this->get_override("covers")(r); }
     ValidatedLowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class ClosedSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<ClosedSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class ClosedSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<ClosedSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    ClosedSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    ClosedSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean separated(const BasicSetType& r) const { return this->get_override("separated")(r); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-
-template<class T> class OvertSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<OvertSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class OvertSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<OvertSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    OvertSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    OvertSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-
-template<class T> class BoundedSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<BoundedSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class BoundedSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<BoundedSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
-    BoundedSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    BoundedSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean inside(const BasicSetType& r) const { return this->get_override("inside")(r); }
     BoundingSetType bounding_box() const { return this->get_override("bounding_box")(); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-
-template<class T> class CompactSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<CompactSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class CompactSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<CompactSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
-    CompactSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    CompactSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean separated(const BasicSetType& r) const { return this->get_override("separated")(r); }
     ValidatedLowerKleenean inside(const BasicSetType& r) const { return this->get_override("inside")(r); }
@@ -240,12 +258,12 @@ template<class T> class CompactSetWrapper<ValidatedTag,T>
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class RegularSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<RegularSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class RegularSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<RegularSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
-    RegularSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    RegularSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     ValidatedLowerKleenean covers(const BasicSetType& r) const { return this->get_override("covers")(r); }
@@ -253,13 +271,13 @@ template<class T> class RegularSetWrapper<ValidatedTag,T>
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
 
-template<class T> class LocatedSetWrapper<ValidatedTag,T>
-  : public pybind11::wrapper<LocatedSetInterface<ValidatedTag,T>>
-{
+template<class T>
+class LocatedSetWrapper<ValidatedTag, T>
+    : public pybind11::wrapper<LocatedSetInterface<ValidatedTag, T>> {
   public:
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
-    LocatedSetInterface<ValidatedTag,T>* clone() const { return this->get_override("clone")(); }
+    LocatedSetInterface<ValidatedTag, T>* clone() const { return this->get_override("clone")(); }
     SizeType dimension() const { return this->get_override("dimension")(); }
     ValidatedLowerKleenean overlaps(const BasicSetType& r) const { return this->get_override("overlaps")(r); }
     ValidatedLowerKleenean separated(const BasicSetType& r) const { return this->get_override("separated")(r); }
@@ -268,32 +286,30 @@ template<class T> class LocatedSetWrapper<ValidatedTag,T>
     BoundingSetType bounding_box() const { return this->get_override("bounding_box")(); }
     OutputStream& _write(OutputStream& os) const { return this->get_override("_write")(os); }
 };
-
 
 } // namespace Ariadne
 
-
 using namespace Ariadne;
 
-template<class BX> BX box_from_list(pybind11::list lst) {
+template<class BX>
+BX box_from_list(pybind11::list lst) {
     typedef typename BX::IntervalType IVL;
-    Array<IVL> ary( lst.size(), [&lst](SizeType i){return pybind11::cast<IVL>(lst[i]);} );
+    Array<IVL> ary(lst.size(), [&lst](SizeType i) { return pybind11::cast<IVL>(lst[i]); });
     return BX(ary);
 }
 
-
-
-template<class PT> PT point_from_python(pybind11::list pylst) {
+template<class PT>
+PT point_from_python(pybind11::list pylst) {
     typedef typename PT::ValueType X;
-    std::vector<X> lst=pybind11::cast<std::vector<X>>(pylst);
-    Array<X> ary(lst.begin(),lst.end());
+    std::vector<X> lst = pybind11::cast<std::vector<X>>(pylst);
+    Array<X> ary(lst.begin(), lst.end());
     return PT(Vector<X>(ary));
 }
 
-template<class PT> Void export_point(pybind11::module& module, std::string name=python_class_name<PT>())
-{
+template<class PT>
+Void export_point(pybind11::module& module, std::string name = python_class_name<PT>()) {
     typedef typename PT::ValueType X;
-    pybind11::class_<PT> point_class(module,name.c_str());
+    pybind11::class_<PT> point_class(module, name.c_str());
     point_class.def(pybind11::init(&point_from_python<PT>));
     point_class.def(pybind11::init<PT>());
     if constexpr (DefaultConstructible<X>) {
@@ -301,9 +317,9 @@ template<class PT> Void export_point(pybind11::module& module, std::string name=
     }
     if constexpr (HasPrecisionType<X>) {
         typedef typename X::PrecisionType PR;
-        point_class.def(pybind11::init<Nat,PR>());
+        point_class.def(pybind11::init<Nat, PR>());
     }
-    point_class.def("__getitem__", &__getitem__<PT,Int,X>);
+    point_class.def("__getitem__", &__getitem__<PT, Int, X>);
     point_class.def("dimension", &PT::dimension);
     point_class.def("centre", &PT::centre);
     point_class.def("bounding_box", &PT::bounding_box);
@@ -327,38 +343,41 @@ Void export_geometry_vectors(pybind11::module& module) {
     using RadiusType = Positive<FloatDPBounds>;
     using RadiusVector = Vector<RadiusType>;
 
-    pybind11::class_<RadiusVector> radius_vector_class(module,"FloatDPPositiveBoundsVector");
+    pybind11::class_<RadiusVector> radius_vector_class(module, "FloatDPPositiveBoundsVector");
     radius_vector_class.def("size", &RadiusVector::size);
     radius_vector_class.def("__len__", &RadiusVector::size);
-    radius_vector_class.def("__getitem__", [](RadiusVector const& v, SizeType i) {
-        if(i>=v.size()) { throw pybind11::index_error(); }
+    radius_vector_class.def("__getitem__", [](const RadiusVector& v, SizeType i) {
+        if (i >= v.size()) {
+            throw pybind11::index_error();
+        }
         return v[i];
     });
     radius_vector_class.def("__str__", &__cstr__<RadiusVector>);
 }
 
-template<class UB> using BoxWithUpperBound=Box<Interval<UB>>;
+template<class UB>
+using BoxWithUpperBound = Box<Interval<UB>>;
 
-template<class BX> Void export_box(pybind11::module& module, std::string name=python_class_name<BX>())
-{
-    using IVL=typename BX::IntervalType;
+template<class BX>
+Void export_box(pybind11::module& module, std::string name = python_class_name<BX>()) {
+    using IVL = typename BX::IntervalType;
 
     using BoxType = BX;
     using IntervalType = IVL;
 
     typedef typename BoxType::MidpointType MidpointType;
 
-    typedef decltype(contains(declval<BoxType>(),declval<MidpointType>())) ContainsType;
-    typedef decltype(disjoint(declval<BX>(),declval<BX>())) DisjointType;
-    typedef decltype(subset(declval<BX>(),declval<BX>())) SubsetType;
-    typedef decltype(separated(declval<BX>(),declval<BX>())) SeparatedType;
-    typedef decltype(overlap(declval<BX>(),declval<BX>())) OverlapType;
-    typedef decltype(covers(declval<BX>(),declval<BX>())) CoversType;
-    typedef decltype(inside(declval<BX>(),declval<BX>())) InsideType;
+    typedef decltype(contains(declval<BoxType>(), declval<MidpointType>())) ContainsType;
+    typedef decltype(disjoint(declval<BX>(), declval<BX>())) DisjointType;
+    typedef decltype(subset(declval<BX>(), declval<BX>())) SubsetType;
+    typedef decltype(separated(declval<BX>(), declval<BX>())) SeparatedType;
+    typedef decltype(overlap(declval<BX>(), declval<BX>())) OverlapType;
+    typedef decltype(covers(declval<BX>(), declval<BX>())) CoversType;
+    typedef decltype(inside(declval<BX>(), declval<BX>())) InsideType;
 
-    //NOTE: Boxes do not inherit SetInterface<T>s or  in C++ API
-    //pybind11::class_<BasicSetType,pybind11::bases<CompactSetInterface<T>,OpenSetInterface<T>>>
-    pybind11::class_<BoxType> box_class(module,name.c_str());
+    // NOTE: Boxes do not inherit SetInterface<T>s or  in C++ API
+    // pybind11::class_<BasicSetType,pybind11::bases<CompactSetInterface<T>,OpenSetInterface<T>>>
+    pybind11::class_<BoxType> box_class(module, name.c_str());
     box_class.def(pybind11::init<BoxType>());
     box_class.def(pybind11::init<DimensionType>());
 
@@ -370,114 +389,112 @@ template<class BX> Void export_box(pybind11::module& module, std::string name=py
 
     if constexpr (HasPrecisionType<IntervalType>) {
         typedef PrecisionType<IntervalType> PrecisionType;
-        if constexpr (Constructible<BoxType,RealBox,PrecisionType>) {
-            box_class.def(pybind11::init<RealBox,PrecisionType>());
-        } else if constexpr (Constructible<BoxType,DyadicBox,PrecisionType>) {
-            box_class.def(pybind11::init<DyadicBox,PrecisionType>());
+        if constexpr (Constructible<BoxType, RealBox, PrecisionType>) {
+            box_class.def(pybind11::init<RealBox, PrecisionType>());
+        } else if constexpr (Constructible<BoxType, DyadicBox, PrecisionType>) {
+            box_class.def(pybind11::init<DyadicBox, PrecisionType>());
         }
 
         typedef typename IntervalType::UpperBoundType FloatType;
-        export_conversions<BoxWithUpperBound,FloatType>(box_class);
+        export_conversions<BoxWithUpperBound, FloatType>(box_class);
     }
 
     box_class.def(pybind11::init<Array<IntervalType>>());
     box_class.def(pybind11::init(&box_from_list<BoxType>));
-    pybind11::implicitly_convertible<pybind11::list,BoxType>();
+    pybind11::implicitly_convertible<pybind11::list, BoxType>();
 
-    if constexpr (HasEquality<BX,BX>) {
-        box_class.def("__eq__",  __eq__<BX,BX , Return<EqualityType<BX,BX>> >);
-        box_class.def("__ne__",  __ne__<BX,BX , Return<InequalityType<BX,BX>> >);
+    if constexpr (HasEquality<BX, BX>) {
+        box_class.def("__eq__", __eq__<BX, BX, Return<EqualityType<BX, BX>>>);
+        box_class.def("__ne__", __ne__<BX, BX, Return<InequalityType<BX, BX>>>);
     }
 
-    box_class.def("dimension", (DimensionType(BX::*)()const) &BX::dimension);
-    box_class.def("__getitem__", &__getitem__<BX,Int>);
-    box_class.def("centre", (typename BX::CentreType(BX::*)()const) &BX::centre);
-    box_class.def("midpoint", (typename BX::MidpointType(BX::*)()const) &BX::midpoint);
-    box_class.def("radius", (typename BX::RadiusType(BX::*)()const) &BX::radius);
-    box_class.def("radii", (Vector<typename BX::RadiusType>(BX::*)()const) &BX::radii);
-    box_class.def("widths", (Vector<typename BX::RadiusType>(BX::*)()const) &BX::widths);
-    box_class.def("semiperimeter", (typename BX::RadiusType(BX::*)()const) &BX::semiperimeter);
-    box_class.def("bounding_box", (BX(BX::*)()const) &BX::bounding_box);
-    box_class.def("measure", (typename BX::MeasureType(BX::*)()const) &BX::measure);
-    box_class.def("volume", (typename BX::MeasureType(BX::*)()const) &BX::volume);
-    box_class.def("separated", (SeparatedType(BX::*)(const BX&)const) &BX::separated);
-    box_class.def("overlaps", (OverlapType(BX::*)(const BX&)const) &BX::overlaps);
-    box_class.def("covers", (CoversType(BX::*)(const BX&)const) &BX::covers);
-    box_class.def("inside", (InsideType(BX::*)(const BX&)const) &BX::inside);
-    box_class.def("is_empty", (SeparatedType(BX::*)()const) &BX::is_empty);
-    box_class.def("split", (Pair<BX,BX>(BX::*)()const) &BX::split);
-    box_class.def("split", (Pair<BX,BX>(BX::*)(SizeType)const) &BX::split);
-    box_class.def("__str__",&__cstr__<BX>);
-    box_class.def("__repr__",&__repr__<BX>);
+    box_class.def("dimension", (DimensionType (BX::*)() const) & BX::dimension);
+    box_class.def("__getitem__", &__getitem__<BX, Int>);
+    box_class.def("centre", (typename BX::CentreType (BX::*)() const) & BX::centre);
+    box_class.def("midpoint", (typename BX::MidpointType (BX::*)() const) & BX::midpoint);
+    box_class.def("radius", (typename BX::RadiusType (BX::*)() const) & BX::radius);
+    box_class.def("radii", (Vector<typename BX::RadiusType> (BX::*)() const) & BX::radii);
+    box_class.def("widths", (Vector<typename BX::RadiusType> (BX::*)() const) & BX::widths);
+    box_class.def("semiperimeter", (typename BX::RadiusType (BX::*)() const) & BX::semiperimeter);
+    box_class.def("bounding_box", (BX (BX::*)() const) & BX::bounding_box);
+    box_class.def("measure", (typename BX::MeasureType (BX::*)() const) & BX::measure);
+    box_class.def("volume", (typename BX::MeasureType (BX::*)() const) & BX::volume);
+    box_class.def("separated", (SeparatedType (BX::*)(const BX&) const) & BX::separated);
+    box_class.def("overlaps", (OverlapType (BX::*)(const BX&) const) & BX::overlaps);
+    box_class.def("covers", (CoversType (BX::*)(const BX&) const) & BX::covers);
+    box_class.def("inside", (InsideType (BX::*)(const BX&) const) & BX::inside);
+    box_class.def("is_empty", (SeparatedType (BX::*)() const) & BX::is_empty);
+    box_class.def("split", (Pair<BX, BX> (BX::*)() const) & BX::split);
+    box_class.def("split", (Pair<BX, BX> (BX::*)(SizeType) const) & BX::split);
+    box_class.def("__str__", &__cstr__<BX>);
+    box_class.def("__repr__", &__repr__<BX>);
 
-    module.def("centre", (typename BX::CentreType(*)(BX const&)) &centre);
-    module.def("midpoint", (typename BX::MidpointType(*)(BX const&)) &midpoint);
-    module.def("radius", (typename BX::RadiusType(*)(BX const&)) &radius);
-    module.def("radii", (Vector<typename BX::RadiusType>(*)(BX const&)) &radii);
-    module.def("widths", (Vector<typename BX::RadiusType>(*)(BX const&)) &widths);
-    module.def("measure", (typename BX::MeasureType(*)(BX const&)) &measure);
-    module.def("volume", (typename BX::MeasureType(*)(BX const&)) &volume);
+    module.def("centre", (typename BX::CentreType (*)(BX const&))&centre);
+    module.def("midpoint", (typename BX::MidpointType (*)(BX const&))&midpoint);
+    module.def("radius", (typename BX::RadiusType (*)(BX const&))&radius);
+    module.def("radii", (Vector<typename BX::RadiusType> (*)(BX const&))&radii);
+    module.def("widths", (Vector<typename BX::RadiusType> (*)(BX const&))&widths);
+    module.def("measure", (typename BX::MeasureType (*)(BX const&))&measure);
+    module.def("volume", (typename BX::MeasureType (*)(BX const&))&volume);
 
-    box_class.def("contains", (ContainsType(BX::*)(MidpointType const&)const) &BX::contains);
-    module.def("contains", (ContainsType(*)(BX const&,MidpointType const&)) &contains);
+    box_class.def("contains", (ContainsType (BX::*)(const MidpointType&) const) & BX::contains);
+    module.def("contains", (ContainsType (*)(BX const&, const MidpointType&))&contains);
     if constexpr (HasPrecisionType<typename IntervalType::UpperBoundType>) {
         typedef PrecisionType<typename IntervalType::UpperBoundType> PrecisionType;
-        if constexpr (Same<typename IntervalType::UpperBoundType,FloatUpperBound<PrecisionType>> and false) {
-            box_class.def("contains", (ContainsType(*)(BoxType const&, Vector<FloatBounds<PrecisionType>> const&)) &contains);
-            module.def("contains", (ContainsType(*)(BoxType const&, Vector<FloatBounds<PrecisionType>> const&)) &contains);
+        if constexpr (Same<typename IntervalType::UpperBoundType, FloatUpperBound<PrecisionType>> and false) {
+            box_class.def("contains", (ContainsType (*)(const BoxType&, const Vector<FloatBounds<PrecisionType>>&))&contains);
+            module.def("contains", (ContainsType (*)(const BoxType&, const Vector<FloatBounds<PrecisionType>>&))&contains);
         }
     }
 
-    module.def("disjoint", (DisjointType(*)(BX const&,BX const&)) &disjoint);
+    module.def("disjoint", (DisjointType (*)(BX const&, BX const&))&disjoint);
     if constexpr (Same<typename IVL::UpperBoundType, typename IVL::LowerBoundType>) {
-        module.def("subset", (SubsetType(*)(const BX&,const BX&)) &subset);
+        module.def("subset", (SubsetType (*)(const BX&, const BX&))&subset);
     } else {
         typedef Box<Interval<typename IVL::LowerBoundType>> LBX;
-        using SubsetOfLowerType = decltype(subset(declval<BX>(),declval<LBX>()));
-        module.def("subset", (SubsetOfLowerType(*)(const BX&,const LBX&)) &subset);
+        using SubsetOfLowerType = decltype(subset(declval<BX>(), declval<LBX>()));
+        module.def("subset", (SubsetOfLowerType (*)(const BX&, const LBX&))&subset);
     }
 
-    module.def("product", (BX(*)(const BX&,const IVL&)) &product);
-    module.def("product", (BX(*)(const BX&,const BX&)) &product);
-    module.def("hull", (BX(*)(const BX&,const BX&)) &hull);
-    module.def("intersection", (BX(*)(const BX&,const BX&)) &intersection);
-    module.def("split", (Pair<BX,BX>(*)(BX const&)) &split);
+    module.def("product", (BX (*)(const BX&, const IVL&))&product);
+    module.def("product", (BX (*)(const BX&, const BX&))&product);
+    module.def("hull", (BX (*)(const BX&, const BX&))&hull);
+    module.def("intersection", (BX (*)(const BX&, const BX&))&intersection);
+    module.def("split", (Pair<BX, BX> (*)(BX const&))&split);
 
-    if constexpr (Same<BX,BoxDomainType>) {
-        module.attr("BoxDomainType")=box_class;
-    } else if constexpr (Same<BX,BoxValidatedRangeType>) {
-        module.attr("BoxValidatedRangeType")=box_class;
-    } else if constexpr (Same<BX,BoxApproximateRangeType>) {
-        module.attr("BoxApproximateRangeType")=box_class;
+    if constexpr (Same<BX, BoxDomainType>) {
+        module.attr("BoxDomainType") = box_class;
+    } else if constexpr (Same<BX, BoxValidatedRangeType>) {
+        module.attr("BoxValidatedRangeType") = box_class;
+    } else if constexpr (Same<BX, BoxApproximateRangeType>) {
+        module.attr("BoxApproximateRangeType") = box_class;
     }
 
-    module.def("cast_exact",(BoxDomainType(*)(BoxApproximateRangeType const&)) &cast_exact_box);
-
+    module.def("cast_exact", (BoxDomainType (*)(const BoxApproximateRangeType&))&cast_exact_box);
 }
 
-
-template<class BX> Void export_simple_box(pybind11::module& module, std::string name=python_class_name<BX>())
-{
+template<class BX>
+Void export_simple_box(pybind11::module& module, std::string name = python_class_name<BX>()) {
     using BoxType = BX;
-    pybind11::class_<BoxType> box_class(module,name.c_str());
+    pybind11::class_<BoxType> box_class(module, name.c_str());
     box_class.def(pybind11::init(&box_from_list<BoxType>));
-    if constexpr (Constructible<BX,DyadicBox>) {
+    if constexpr (Constructible<BX, DyadicBox>) {
         box_class.def(pybind11::init<DyadicBox>());
     }
-    if constexpr (Constructible<BX,DecimalBox>) {
+    if constexpr (Constructible<BX, DecimalBox>) {
         box_class.def(pybind11::init<DecimalBox>());
     }
-    if constexpr (Constructible<BX,RationalBox>) {
+    if constexpr (Constructible<BX, RationalBox>) {
         box_class.def(pybind11::init<RationalBox>());
     }
-    if constexpr (Constructible<BoxType,BoxDomainType>) {
+    if constexpr (Constructible<BoxType, BoxDomainType>) {
         box_class.def(pybind11::init<BoxDomainType>());
-        pybind11::implicitly_convertible<BoxDomainType,BoxType>();
+        pybind11::implicitly_convertible<BoxDomainType, BoxType>();
     }
-    box_class.def("dimension", (DimensionType(BX::*)()const) &BX::dimension);
-    box_class.def("__getitem__", &__getitem__<BX,Int>);
-    box_class.def("__str__",&__cstr__<BoxType>);
-    box_class.def("__repr__",&__repr__<BoxType>);
+    box_class.def("dimension", (DimensionType (BX::*)() const) & BX::dimension);
+    box_class.def("__getitem__", &__getitem__<BX, Int>);
+    box_class.def("__str__", &__cstr__<BoxType>);
+    box_class.def("__repr__", &__repr__<BoxType>);
 }
 
 Void export_boxes(pybind11::module& module) {
@@ -485,46 +502,44 @@ Void export_boxes(pybind11::module& module) {
     export_simple_box<RationalBox>(module);
     export_simple_box<DecimalBox>(module);
     export_simple_box<DyadicBox>(module);
-//    export_box<ExactBoxType>(module,"ExactBoxType");
-//    export_box<UpperBoxType>(module,"UpperBoxType");
-//    export_box<ApproximateBoxType>(module,"ApproximateBoxType");
-    pybind11::implicitly_convertible<DyadicBox,DecimalBox>();
-    pybind11::implicitly_convertible<DyadicBox,RationalBox>();
-    pybind11::implicitly_convertible<DyadicBox,RealBox>();
-    pybind11::implicitly_convertible<DecimalBox,RationalBox>();
-    pybind11::implicitly_convertible<DecimalBox,RealBox>();
-    pybind11::implicitly_convertible<RationalBox,RealBox>();
+    //    export_box<ExactBoxType>(module,"ExactBoxType");
+    //    export_box<UpperBoxType>(module,"UpperBoxType");
+    //    export_box<ApproximateBoxType>(module,"ApproximateBoxType");
+    pybind11::implicitly_convertible<DyadicBox, DecimalBox>();
+    pybind11::implicitly_convertible<DyadicBox, RationalBox>();
+    pybind11::implicitly_convertible<DyadicBox, RealBox>();
+    pybind11::implicitly_convertible<DecimalBox, RationalBox>();
+    pybind11::implicitly_convertible<DecimalBox, RealBox>();
+    pybind11::implicitly_convertible<RationalBox, RealBox>();
 
     export_box<FloatDPExactBox>(module);
     export_box<FloatDPUpperBox>(module);
     export_box<FloatDPLowerBox>(module);
     export_box<FloatDPApproximateBox>(module);
-//    export_box<FloatMPUpperBox>(module);
+    //    export_box<FloatMPUpperBox>(module);
 
-    pybind11::implicitly_convertible<FloatDPExactBox,FloatDPUpperBox>();
-    pybind11::implicitly_convertible<FloatDPExactBox,FloatDPLowerBox>();
-    pybind11::implicitly_convertible<FloatDPExactBox,FloatDPApproximateBox>();
-    pybind11::implicitly_convertible<FloatDPUpperBox,FloatDPApproximateBox>();
-    pybind11::implicitly_convertible<FloatDPLowerBox,FloatDPApproximateBox>();
+    pybind11::implicitly_convertible<FloatDPExactBox, FloatDPUpperBox>();
+    pybind11::implicitly_convertible<FloatDPExactBox, FloatDPLowerBox>();
+    pybind11::implicitly_convertible<FloatDPExactBox, FloatDPApproximateBox>();
+    pybind11::implicitly_convertible<FloatDPUpperBox, FloatDPApproximateBox>();
+    pybind11::implicitly_convertible<FloatDPLowerBox, FloatDPApproximateBox>();
 
-    module.def("widen", (FloatDPUpperBox(*)(FloatDPExactBox const&, FloatDP eps)) &widen);
+    module.def("widen", (FloatDPUpperBox (*)(const FloatDPExactBox&, FloatDP eps))&widen);
 
-    module.def("cast_singleton", (Vector<FloatDPBounds>(*)(Box<Interval<FloatDPUpperBound>> const&)) &cast_singleton);
-    module.def("cast_singleton", (Vector<FloatMPBounds>(*)(Box<Interval<FloatMPUpperBound>> const&)) &cast_singleton);
+    module.def("cast_singleton", (Vector<FloatDPBounds> (*)(const Box<Interval<FloatDPUpperBound>>&))&cast_singleton);
+    module.def("cast_singleton", (Vector<FloatMPBounds> (*)(const Box<Interval<FloatMPUpperBound>>&))&cast_singleton);
 
     template_<Box> box_template(module);
     // TODO: Change templates so that
-    box_template.as_instantiate<DyadicBox,Dyadic>();
-    box_template.as_instantiate<DecimalBox,Decimal>();
-    box_template.as_instantiate<RationalBox,Rational>();
-    box_template.as_instantiate<RealBox,Real>();
-    box_template.as_instantiate<FloatDPExactBox,FloatDP>();
-    box_template.as_instantiate<FloatDPUpperBox,FloatDPUpperBound>();
-    box_template.as_instantiate<FloatDPLowerBox,FloatDPLowerBound>();
-    box_template.as_instantiate<FloatDPApproximateBox,FloatDPApproximation>();
-
+    box_template.as_instantiate<DyadicBox, Dyadic>();
+    box_template.as_instantiate<DecimalBox, Decimal>();
+    box_template.as_instantiate<RationalBox, Rational>();
+    box_template.as_instantiate<RealBox, Real>();
+    box_template.as_instantiate<FloatDPExactBox, FloatDP>();
+    box_template.as_instantiate<FloatDPUpperBox, FloatDPUpperBound>();
+    box_template.as_instantiate<FloatDPLowerBox, FloatDPLowerBound>();
+    box_template.as_instantiate<FloatDPApproximateBox, FloatDPApproximation>();
 }
-
 
 void export_geometry_primitives(pybind11::module& module) {
     // The abstract Set interfaces remain owned by geometry, even though their
@@ -537,7 +552,9 @@ void export_geometry_primitives(pybind11::module& module) {
     pybind11::class_<IntervalUnion> union_class(module, "DyadicUnionOfIntervals");
     union_class.def(pybind11::init([](const std::vector<DyadicInterval>& intervals) {
         List<DyadicInterval> values;
-        for (const auto& interval : intervals) { values.append(interval); }
+        for (const auto& interval: intervals) {
+            values.append(interval);
+        }
         return IntervalUnion(values);
     }));
     // A scalar interval union has dimension one, but its C++ return type

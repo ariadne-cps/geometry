@@ -35,7 +35,8 @@
 
 namespace Ariadne {
 
-template<class P, class T> class RegularLocatedSetArchetype {
+template<class P, class T>
+class RegularLocatedSetArchetype {
   public:
     typedef typename SetTraits<T>::DimensionType DimensionType;
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
@@ -48,7 +49,7 @@ template<class P, class T> class RegularLocatedSetArchetype {
     auto overlaps(BasicSetType) const -> LowerLogicalType<P>;
     auto inside(BasicSetType) const -> LowerLogicalType<P>;
 
-    friend OutputStream& operator<<(OutputStream& os, RegularLocatedSetArchetype<P,T> const& set);
+    friend OutputStream& operator<<(OutputStream& os, const RegularLocatedSetArchetype<P, T>& set);
 };
 
 } // namespace Ariadne

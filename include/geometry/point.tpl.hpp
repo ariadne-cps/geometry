@@ -5,7 +5,6 @@
  *
  ****************************************************************************/
 
-
 /*
  *  This file is part of Ariadne Geometry.
  *
@@ -32,30 +31,33 @@
 #include <string>
 #include <vector>
 
-#include "geometry/point.hpp"
 #include "geometry/box.hpp"
+#include "geometry/point.hpp"
 #include "utility/stlio.hpp"
 
 namespace Ariadne {
 
-template<class X> Point<X>::Point(InitializerList<X> lst)
-    : Vector<X>(lst)
-{
+template<class X>
+Point<X>::Point(InitializerList<X> lst)
+    : Vector<X>(lst) {
 }
 
-template<class X> Point<X>* Point<X>::clone() const {
+template<class X>
+Point<X>* Point<X>::clone() const {
     return new Point<X>(*this);
 }
 
-template<class X> BoundingBoxType Point<X>::bounding_box() const {
-    typedef decltype(declval<X>()+declval<FloatDPError>()) U;
+template<class X>
+BoundingBoxType Point<X>::bounding_box() const {
+    typedef decltype(declval<X>() + declval<FloatDPError>()) U;
     FloatDPError eps(FloatDP::eps(dp));
     ExactBoxType r(this->dimension());
     UpperIntervalType v;
-    for(SizeType i=0; i!=this->dimension(); ++i) {
-        X const& pti=(*this)[i];
-        r[i]=cast_exact_interval(Interval<U>(pti-eps,pti+eps)); }
+    for (SizeType i = 0; i != this->dimension(); ++i) {
+        const X& pti = (*this)[i];
+        r[i] = cast_exact_interval(Interval<U>(pti - eps, pti + eps));
+    }
     return r;
 }
 
-} //namespace Ariadne
+} // namespace Ariadne

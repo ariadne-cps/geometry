@@ -26,15 +26,11 @@
  *  \brief
  */
 
-
-#include "numeric/module.hpp"
-
 #include "box.hpp"
-#include "box.tpl.hpp"
-
 
 #include "algebra/algebra.hpp"
-
+#include "box.tpl.hpp"
+#include "numeric/module.hpp"
 
 namespace Ariadne {
 
@@ -44,8 +40,7 @@ template class Box<Interval<FloatDPUpperBound>>;
 template class Box<Interval<FloatDPLowerBound>>;
 template class Box<Interval<FloatDPApproximation>>;
 
-ExactBoxType make_box(const String& str)
-{
+ExactBoxType make_box(const String& str) {
     // Representation as a literal
     //   "[a1,b1]x[a2,b2]x...x[an,bn]"
 
@@ -54,61 +49,65 @@ ExactBoxType make_box(const String& str)
     ExactIntervalType ivl;
     char c;
 
-    c='x';
-    while(c=='x') {
+    c = 'x';
+    while (c == 'x') {
         ss >> ivl;
         vec.push_back(ivl);
-        c=' ';
-        while( ss && c==' ') {
+        c = ' ';
+        while (ss && c == ' ') {
             ss >> c;
         }
     }
     ExactBoxType bx(vec.size());
-    for(SizeType i=0; i!=bx.dimension(); ++i) {
-        bx[i]=vec[i];
+    for (SizeType i = 0; i != bx.dimension(); ++i) {
+        bx[i] = vec[i];
     }
     return bx;
 }
 
+template<class BX>
+using VertexType = typename BX::VertexType;
 
-template<class BX> using VertexType = typename BX::VertexType;
+template<class BX>
+void make_vertices_down(const BX& bx, SizeType i, SizeType n, VertexType<BX>& pt, std::vector<VertexType<BX>>& v);
 
-template<class BX> void make_vertices_down(const BX& bx, SizeType i, SizeType n, VertexType<BX>& pt, std::vector<VertexType<BX>>& v);
-
-template<class BX> void make_vertices_up(const BX& bx, SizeType i, SizeType n, VertexType<BX>& pt, std::vector<VertexType<BX>>& v) {
-    if(i == n) {    // base case: we are at the last dimension of the box
+template<class BX>
+void make_vertices_up(const BX& bx, SizeType i, SizeType n, VertexType<BX>& pt, std::vector<VertexType<BX>>& v) {
+    if (i == n) { // base case: we are at the last dimension of the box
         pt[i] = bx[i].lower_bound();
         v.push_back(pt);
         pt[i] = bx[i].upper_bound();
         v.push_back(pt);
-    } else {        // recursive case: we are still scanning dimensions
+    } else { // recursive case: we are still scanning dimensions
         pt[i] = bx[i].lower_bound();
-        make_vertices_up(bx, i+1, n, pt, v);
+        make_vertices_up(bx, i + 1, n, pt, v);
         pt[i] = bx[i].upper_bound();
-        make_vertices_down(bx, i+1, n, pt, v);
+        make_vertices_down(bx, i + 1, n, pt, v);
     }
 }
 
-template<class BX> void make_vertices_down(const BX& bx, SizeType i, SizeType n, VertexType<BX>& pt, std::vector<VertexType<BX>>& v) {
-    if(i == n) {    // base case: we are at the last dimension of the box
+template<class BX>
+void make_vertices_down(const BX& bx, SizeType i, SizeType n, VertexType<BX>& pt, std::vector<VertexType<BX>>& v) {
+    if (i == n) { // base case: we are at the last dimension of the box
         pt[i] = bx[i].upper_bound();
         v.push_back(pt);
         pt[i] = bx[i].lower_bound();
         v.push_back(pt);
-    } else {        // recursive case: we are still scanning dimensions
+    } else { // recursive case: we are still scanning dimensions
         pt[i] = bx[i].upper_bound();
-        make_vertices_up(bx, i+1, n, pt, v);
+        make_vertices_up(bx, i + 1, n, pt, v);
         pt[i] = bx[i].lower_bound();
-        make_vertices_down(bx, i+1, n, pt, v);
+        make_vertices_down(bx, i + 1, n, pt, v);
     }
 }
 
-template<class I> List<typename Box<I>::VertexType> Box<I>::vertices() const {
+template<class I>
+List<typename Box<I>::VertexType> Box<I>::vertices() const {
     std::vector<VertexType> v;
     SizeType n = this->dimension();
-    if(n > 0) {
-        VertexType pt=this->lower_bounds();
-        make_vertices_up(*this, 0, n-1, pt, v);
+    if (n > 0) {
+        VertexType pt = this->lower_bounds();
+        make_vertices_up(*this, 0, n - 1, pt, v);
     }
     return v;
 }
@@ -141,7 +140,6 @@ FloatDPApproximationBox approximation(const RealBox& rbx) {
 }
 */
 
-
 /*
 Vector<FloatBounds> cast_singleton(const Vector<FloatDPUpperInterval>& bx) {
     Vector<FloatBounds> r(bx.size());
@@ -155,4 +153,4 @@ template class Box<FloatDPUpperInterval>;
 template class Box<FloatDPApproximationInterval>;
 */
 
-} //namespace Ariadne
+} // namespace Ariadne

@@ -5,7 +5,6 @@
  *
  ****************************************************************************/
 
-
 /*
  *  This file is part of Ariadne Geometry.
  *
@@ -32,81 +31,99 @@
 
 #include <iosfwd>
 
-#include "geometry/declarations.hpp"
-#include "foundation/logical.hpp"
-#include "utility/writable.hpp"
-#include "numeric/numeric.hpp"
-#include "geometry/value_traits.hpp"
-
-#include "set.decl.hpp"
 #include "box.decl.hpp"
+#include "foundation/logical.hpp"
+#include "geometry/declarations.hpp"
+#include "geometry/value_traits.hpp"
+#include "numeric/numeric.hpp"
+#include "set.decl.hpp"
+#include "utility/writable.hpp"
 
 namespace Ariadne {
 
-
-template<class X> class Vector;
+template<class X>
+class Vector;
 
 using DimensionOne = SizeOne;
 
-template<class S> struct ElementTraits;
-template<class S> using ElementKind = typename ElementTraits<S>::Kind;
-template<class S, class X> using ElementType = typename ValueTraits<ElementKind<S>>::template Type<X>;
+template<class S>
+struct ElementTraits;
+template<class S>
+using ElementKind = typename ElementTraits<S>::Kind;
+template<class S, class X>
+using ElementType = typename ValueTraits<ElementKind<S>>::template Type<X>;
 
-
-template<class T> struct SetTraits;
+template<class T>
+struct SetTraits;
 using EuclideanSetTraits = SetTraits<RealVector>;
 
-template<class T> using DimensionOfType = typename SetTraits<T>::DimensionType;
-template<class T> using BasicSetType = typename SetTraits<T>::BasicSetType;
-template<class T> using BoundingSetType = typename SetTraits<T>::BoundingSetType;
+template<class T>
+using DimensionOfType = typename SetTraits<T>::DimensionType;
+template<class T>
+using BasicSetType = typename SetTraits<T>::BasicSetType;
+template<class T>
+using BoundingSetType = typename SetTraits<T>::BoundingSetType;
 
-template<> struct SetTraits<RealScalar> : public ScalarTraits {
+template<>
+struct SetTraits<RealScalar> : public ScalarTraits {
     typedef DimensionOne DimensionType;
     typedef FloatDPExactInterval BasicSetType;
     typedef FloatDPUpperInterval BoundingSetType;
 };
-template<> struct SetTraits<RealVector> : public VectorTraits {
+template<>
+struct SetTraits<RealVector> : public VectorTraits {
     typedef Ariadne::DimensionType DimensionType;
     typedef FloatDPExactBox BasicSetType;
     typedef FloatDPUpperBox BoundingSetType;
 };
 
-template<class UB> class Interval;
+template<class UB>
+class Interval;
 typedef FloatDPExactInterval ExactIntervalType;
 
-template<class IVL> class Box;
+template<class IVL>
+class Box;
 typedef FloatDPExactBox ExactBoxType;
 typedef FloatDPUpperBox UpperBoxType;
 
 struct Overlap {
     constexpr const char* code() const { return "overlap"; }
-    template<class S> decltype(auto) operator()(S const& s, ExactBoxType const& bx, Effort eff) const { return s.overlaps(bx,eff); }
-    template<class S1, class S2> decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return overlap(s1,s2,eff); }
-    template<class S1, class S2> decltype(auto) operator()(S1 const& s1, S2 const& s2) const { return overlap(s1,s2); }
+    template<class S>
+    decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.overlaps(bx, eff); }
+    template<class S1, class S2>
+    decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return overlap(s1, s2, eff); }
+    template<class S1, class S2>
+    decltype(auto) operator()(S1 const& s1, S2 const& s2) const { return overlap(s1, s2); }
 };
 
 struct Separated {
     constexpr const char* code() const { return "separated"; }
-    template<class S> decltype(auto) operator()(S const& s, ExactBoxType const& bx, Effort eff) const { return s.separated(bx,eff); }
-    template<class S1, class S2> decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return separated(s1,s2,eff); }
+    template<class S>
+    decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.separated(bx, eff); }
+    template<class S1, class S2>
+    decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return separated(s1, s2, eff); }
 };
 
 struct Inside {
     constexpr const char* code() const { return "inside"; }
-    template<class S> decltype(auto) operator()(S const& s, ExactBoxType const& bx, Effort eff) const { return s.inside(bx,eff); }
-    template<class S1, class S2> decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return inside(s1,s2,eff); }
+    template<class S>
+    decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.inside(bx, eff); }
+    template<class S1, class S2>
+    decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return inside(s1, s2, eff); }
 };
 
 struct Covers {
     constexpr const char* code() const { return "covers"; }
-    template<class S> decltype(auto) operator()(S const& s, ExactBoxType const& bx, Effort eff) const { return s.covers(bx,eff); }
-    template<class S1, class S2> decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return inside(s2,s1,eff); }
+    template<class S>
+    decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.covers(bx, eff); }
+    template<class S1, class S2>
+    decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return inside(s2, s1, eff); }
 };
 
 //! \brief Base class for sets described by predicates involving boxes.
-template<class T> class SetInterfaceBase
-    : public virtual WritableInterface
-{
+template<class T>
+class SetInterfaceBase
+    : public virtual WritableInterface {
   public:
     //! \brief The type of element of the set.
     typedef T ElementType;
@@ -127,12 +144,11 @@ template<class T> class SetInterfaceBase
     virtual OutputStream& _write(OutputStream& os) const = 0;
 };
 
-
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for bounded sets.
-template<class P, class T> class BoundedSetInterface
-    : public virtual SetInterfaceBase<T>
-{
+template<class P, class T>
+class BoundedSetInterface
+    : public virtual SetInterfaceBase<T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
     using typename SetInterfaceBase<T>::BoundingSetType;
@@ -146,12 +162,11 @@ template<class P, class T> class BoundedSetInterface
     virtual BoundingSetType bounding_box() const = 0;
 };
 
-
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for overt sets, for which intersection with an open box is verifiable.
-template<class P, class T> class OvertSetInterface
-    : public virtual SetInterfaceBase<T>
-{
+template<class P, class T>
+class OvertSetInterface
+    : public virtual SetInterfaceBase<T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
 
@@ -160,15 +175,15 @@ template<class P, class T> class OvertSetInterface
     //! Sets \f$A\f$ and \f$B\f$ \em overlap if \f$A^\circ \cap B^\circ \neq \emptyset\f$.
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bx) const = 0;
     //! \brief Tests if \a ovs overlaps \a ops, to a tolerance of \a eps.
-    friend LowerKleeneanType<P> overlap(const OvertSetInterface<P,T>& ovs, const OpenSetInterface<P,T>& ops);
-    friend LowerKleeneanType<ValidatedTag> overlap(const OvertSetInterface<ValidatedTag,T>& ovs, const OpenSetInterface<ValidatedTag,T>& ops, const RawFloatDP& eps);
+    friend LowerKleeneanType<P> overlap(const OvertSetInterface<P, T>& ovs, const OpenSetInterface<P, T>& ops);
+    friend LowerKleeneanType<ValidatedTag> overlap(const OvertSetInterface<ValidatedTag, T>& ovs, const OpenSetInterface<ValidatedTag, T>& ops, const RawFloatDP& eps);
 };
 
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for open sets.
-template<class P, class T> class OpenSetInterface
-    : public virtual OvertSetInterface<P,T>
-{
+template<class P, class T>
+class OpenSetInterface
+    : public virtual OvertSetInterface<P, T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
 
@@ -177,18 +192,18 @@ template<class P, class T> class OpenSetInterface
     //! A set \f$A\f$ \em covers \f$B\f$ if \f$A^\circ \supset \overline{B}\f$.
     virtual LowerKleeneanType<P> covers(const BasicSetType& bx) const = 0;
     //! \brief Tests if \a ovs overlaps \a ops, to a tolerance of \a eps.
-    friend LowerKleeneanType<P> overlap(const OvertSetInterface<P,T>& ovs, const OpenSetInterface<P,T>& ops);
-    friend LowerKleeneanType<ValidatedTag> overlap(const OvertSetInterface<ValidatedTag,T>& ovs, const OpenSetInterface<ValidatedTag,T>& ops, const RawFloatDP& eps);
+    friend LowerKleeneanType<P> overlap(const OvertSetInterface<P, T>& ovs, const OpenSetInterface<P, T>& ops);
+    friend LowerKleeneanType<ValidatedTag> overlap(const OvertSetInterface<ValidatedTag, T>& ovs, const OpenSetInterface<ValidatedTag, T>& ops, const RawFloatDP& eps);
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
-    friend LowerKleeneanType<P> inside(const CompactSetInterface<P,T>& ls, const OpenSetInterface<P,T>& rs);
-    friend LowerKleeneanType<ValidatedTag> inside(const CompactSetInterface<ValidatedTag,T>& ls, const OpenSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend LowerKleeneanType<P> inside(const CompactSetInterface<P, T>& ls, const OpenSetInterface<P, T>& rs);
+    friend LowerKleeneanType<ValidatedTag> inside(const CompactSetInterface<ValidatedTag, T>& ls, const OpenSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
 };
 
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for closed sets.
-template<class P, class T> class ClosedSetInterface
-    : public virtual SetInterfaceBase<T>
-{
+template<class P, class T>
+class ClosedSetInterface
+    : public virtual SetInterfaceBase<T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
 
@@ -197,115 +212,112 @@ template<class P, class T> class ClosedSetInterface
     //! A set \f$A\f$ is \em separated from \f$B\f$ if \f$\,\overline{\!A} \cap \overline{B} = \emptyset\f$.
     virtual LowerKleeneanType<P> separated(const BasicSetType& bx) const = 0;
     //! \brief Tests if \a cps is disjoint from \a cls, to a tolerance of \a eps.
-    friend LowerKleeneanType<P> separated(const CompactSetInterface<P,T>& cps, const ClosedSetInterface<P,T>& cls);
-    friend LowerKleeneanType<ValidatedTag> separated(const CompactSetInterface<ValidatedTag,T>& cps, const ClosedSetInterface<ValidatedTag,T>& cls, const RawFloatDP& eps);
+    friend LowerKleeneanType<P> separated(const CompactSetInterface<P, T>& cps, const ClosedSetInterface<P, T>& cls);
+    friend LowerKleeneanType<ValidatedTag> separated(const CompactSetInterface<ValidatedTag, T>& cps, const ClosedSetInterface<ValidatedTag, T>& cls, const RawFloatDP& eps);
 };
 
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for compact (closed and bounded) sets.
-template<class P, class T> class CompactSetInterface
-    : public virtual BoundedSetInterface<P,T>,
-      public virtual ClosedSetInterface<P,T>
-{
+template<class P, class T>
+class CompactSetInterface
+    : public virtual BoundedSetInterface<P, T>,
+      public virtual ClosedSetInterface<P, T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
 
-    //virtual ValidatedSierpinskian empty() const = 0;
+    // virtual ValidatedSierpinskian empty() const = 0;
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
-    friend LowerKleeneanType<P> inside(const CompactSetInterface<P,T>& ls, const OpenSetInterface<P,T>& rs);
-    friend LowerKleeneanType<ValidatedTag> inside(const CompactSetInterface<ValidatedTag,T>& ls, const OpenSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend LowerKleeneanType<P> inside(const CompactSetInterface<P, T>& ls, const OpenSetInterface<P, T>& rs);
+    friend LowerKleeneanType<ValidatedTag> inside(const CompactSetInterface<ValidatedTag, T>& ls, const OpenSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a cps is disjoint from \a cls, to a tolerance of \a eps.
-    friend LowerKleeneanType<P> separated(const CompactSetInterface<P,T>& cps, const ClosedSetInterface<P,T>& cls);
-    friend LowerKleeneanType<ValidatedTag> separated(const CompactSetInterface<ValidatedTag,T>& cps, const ClosedSetInterface<ValidatedTag,T>& cls, const RawFloatDP& eps);
-
+    friend LowerKleeneanType<P> separated(const CompactSetInterface<P, T>& cps, const ClosedSetInterface<P, T>& cls);
+    friend LowerKleeneanType<ValidatedTag> separated(const CompactSetInterface<ValidatedTag, T>& cps, const ClosedSetInterface<ValidatedTag, T>& cls, const RawFloatDP& eps);
 };
 
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for regular sets, whose closure is the closure of the interior, and whose interior is the interior of the closure.
-template<class P, class T> class RegularSetInterface
-    : public virtual OpenSetInterface<P,T>,
-      public virtual ClosedSetInterface<P,T>
-{
+template<class P, class T>
+class RegularSetInterface
+    : public virtual OpenSetInterface<P, T>,
+      public virtual ClosedSetInterface<P, T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
 
     //! \brief Tests if \a ls overlaps \a rs, to a tolerance of \a eps.
-    friend KleeneanType<P> overlap(const LocatedSetInterface<P,T>& ls, const RegularSetInterface<P,T>& rs);
-    friend KleeneanType<ValidatedTag> overlap(const LocatedSetInterface<ValidatedTag,T>& ls, const RegularSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend KleeneanType<P> overlap(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    friend KleeneanType<ValidatedTag> overlap(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
-    friend KleeneanType<P> inside(const LocatedSetInterface<P,T>& ls, const RegularSetInterface<P,T>& rs);
-    friend KleeneanType<ValidatedTag> inside(const LocatedSetInterface<ValidatedTag,T>& ls, const RegularSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend KleeneanType<P> inside(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    friend KleeneanType<ValidatedTag> inside(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is disjoint from \a rs, to a tolerance of \a eps.
-    friend KleeneanType<P> separated(const LocatedSetInterface<P,T>& ls, const RegularSetInterface<P,T>& rs);
-    friend KleeneanType<ValidatedTag> separated(const LocatedSetInterface<ValidatedTag,T>& ls, const RegularSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend KleeneanType<P> separated(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    friend KleeneanType<ValidatedTag> separated(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
 };
-
 
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Interface for located (overt and compact) sets.
-template<class P, class T> class LocatedSetInterface
-    : public virtual OvertSetInterface<P,T>,
-      public virtual CompactSetInterface<P,T>
-{
+template<class P, class T>
+class LocatedSetInterface
+    : public virtual OvertSetInterface<P, T>,
+      public virtual CompactSetInterface<P, T> {
   public:
     using typename SetInterfaceBase<T>::BasicSetType;
 
     //! \brief Tests if \a ls overlaps \a rs, to a tolerance of \a eps.
-    friend KleeneanType<P> overlap(const LocatedSetInterface<P,T>& ls, const RegularSetInterface<P,T>& rs);
-    friend KleeneanType<ValidatedTag> overlap(const LocatedSetInterface<ValidatedTag,T>& ls, const RegularSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend KleeneanType<P> overlap(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    friend KleeneanType<ValidatedTag> overlap(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
-    friend KleeneanType<P> inside(const LocatedSetInterface<P,T>& ls, const RegularSetInterface<P,T>& rs);
-    friend KleeneanType<ValidatedTag> inside(const LocatedSetInterface<ValidatedTag,T>& ls, const RegularSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend KleeneanType<P> inside(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    friend KleeneanType<ValidatedTag> inside(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is disjoint from \a rs, to a tolerance of \a eps.
-    friend KleeneanType<P> separated(const LocatedSetInterface<P,T>& ls, const RegularSetInterface<P,T>& rs);
-    friend KleeneanType<ValidatedTag> separated(const LocatedSetInterface<ValidatedTag,T>& ls, const RegularSetInterface<ValidatedTag,T>& rs, const RawFloatDP& eps);
+    friend KleeneanType<P> separated(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    friend KleeneanType<ValidatedTag> separated(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
 };
 
 //! \ingroup GeometryModule SetInterfaceSubModule
 //! \brief Complete set interface for bounded regular sets.
-template<class P, class T> class RegularLocatedSetInterface
-    : public virtual RegularSetInterface<P,T>,
-      public virtual LocatedSetInterface<P,T>
-{
+template<class P, class T>
+class RegularLocatedSetInterface
+    : public virtual RegularSetInterface<P, T>,
+      public virtual LocatedSetInterface<P, T> {
   public:
     // Resolve BasicSetType redeclared along both inheritance paths for MSVC.
     using typename SetInterfaceBase<T>::BasicSetType;
 };
 
-
-
 //! \brief A Euclidean space \f$\R^d\f$ of dimension \a d.
-class EuclideanSpace
-{
-    using P=EffectiveTag; using T=RealVector;
+class EuclideanSpace {
+    using P = EffectiveTag;
+    using T = RealVector;
+
   public:
     //! \brief The canonical type used for bounding sets in the space.
     typedef ExactBoxType BoundingDomainType;
     //! \brief The interface satisified by bounded sets in the space.
-    typedef BoundedSetInterface<P,T> BoundedSetInterfaceType;
+    typedef BoundedSetInterface<P, T> BoundedSetInterfaceType;
     //! \brief The interface satisified by overt sets in the space.
-    typedef OvertSetInterface<P,T> OvertSetInterfaceType;
+    typedef OvertSetInterface<P, T> OvertSetInterfaceType;
     //! \brief The interface satisified by over sets in the space.
-    typedef OpenSetInterface<P,T> OpenSetInterfaceType;
+    typedef OpenSetInterface<P, T> OpenSetInterfaceType;
     //! \brief The interface satisified by closed sets in the space.
-    typedef ClosedSetInterface<P,T> ClosedSetInterfaceType;
+    typedef ClosedSetInterface<P, T> ClosedSetInterfaceType;
     //! \brief The interface satisified by compact sets in the space.
-    typedef CompactSetInterface<P,T> CompactSetInterfaceType;
+    typedef CompactSetInterface<P, T> CompactSetInterfaceType;
     //! \brief The interface satisified by regular sets in the space.
-    typedef RegularSetInterface<P,T> RegularSetInterfaceType;
+    typedef RegularSetInterface<P, T> RegularSetInterfaceType;
     //! \brief The interface satisified by located sets in the space.
-    typedef LocatedSetInterface<P,T> LocatedSetInterfaceType;
+    typedef LocatedSetInterface<P, T> LocatedSetInterfaceType;
     //! \brief The interface satisified by bounded regular sets.
-    typedef RegularLocatedSetInterface<P,T> RegularLocatedSetInterfaceType;
+    typedef RegularLocatedSetInterface<P, T> RegularLocatedSetInterfaceType;
+
   public:
-    EuclideanSpace(const SizeType& d) : _dimension(d) { }
+    EuclideanSpace(const SizeType& d) : _dimension(d) {}
     const SizeType& dimension() const { return this->_dimension; }
+
   private:
     SizeType _dimension;
 };
 
-
 } // namespace Ariadne
-
 
 #endif // ARIADNE_SET_INTERFACE_HPP

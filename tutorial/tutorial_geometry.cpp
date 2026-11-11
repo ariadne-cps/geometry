@@ -27,8 +27,8 @@
 #include <iostream>
 #include <string>
 
-#include "geometry/point.hpp"
 #include "geometry/box.hpp"
+#include "geometry/point.hpp"
 #include "geometry/set.hpp"
 #include "geometry/set_wrapper.hpp"
 #include "geometry/union_of_intervals.hpp"
@@ -54,9 +54,18 @@ int main() {
     show("point bounding box", sample.bounding_box());
 
     section("Boxes and validated geometric predicates");
-    ExactBoxType workspace({{-2.0_x, 2.0_x}, {-1.5_x, 1.5_x}});
-    ExactBoxType observation({{-0.75_x, 1.25_x}, {-0.5_x, 1.0_x}});
-    ExactBoxType shifted({{1.0_x, 3.0_x}, {-0.25_x, 0.5_x}});
+    ExactBoxType workspace({
+        {-2.0_x, 2.0_x},
+        {-1.5_x, 1.5_x}
+    });
+    ExactBoxType observation({
+        {-0.75_x, 1.25_x},
+        { -0.5_x,  1.0_x}
+    });
+    ExactBoxType shifted({
+        {  1.0_x, 3.0_x},
+        {-0.25_x, 0.5_x}
+    });
     show("workspace", workspace);
     show("dimension", workspace.dimension());
     show("centre", workspace.centre());
@@ -88,15 +97,20 @@ int main() {
     show("open set covers observation", open.covers(observation));
 
     section("Finite unions of scalar intervals");
-    UnionOfIntervals<Dyadic> intervals({{0,1}, {2,3}});
-    UnionOfIntervals<Dyadic> mask({{0.5_dy,2.5_dy}});
+    UnionOfIntervals<Dyadic> intervals({
+        {0, 1},
+        {2, 3}
+    });
+    UnionOfIntervals<Dyadic> mask({
+        {0.5_dy, 2.5_dy}
+    });
     show("interval union", intervals);
     show("interval count", intervals.size());
     show("bounding interval", intervals.bounding_box());
     show("union measure", intervals.measure());
-    show("intersected intervals", intersection(intervals,mask));
-    show("joined intervals", join(intervals,mask));
-    show("intersection measure", intersection(intervals,mask).measure());
+    show("intersected intervals", intersection(intervals, mask));
+    show("joined intervals", join(intervals, mask));
+    show("intersection measure", intersection(intervals, mask).measure());
 
     std::cout << "\nGeometry deliberately ends at fundamental representations.\n"
                  "See tutorial_set for constrained sets and curves, and "

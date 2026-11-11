@@ -22,7 +22,6 @@
  *  along with Ariadne Geometry.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 /** @file geometry/declarations.hpp
  *  @brief Common geometric forward declarations and type aliases.
  */
@@ -32,19 +31,17 @@
 
 #include <iosfwd>
 
+#include "foundation/logical.decl.hpp"
+#include "foundation/paradigm.hpp"
+#include "geometry/box.decl.hpp"
+#include "interval/interval.decl.hpp"
 #include "utility/metaprogramming.hpp"
 #include "utility/typedefs.hpp"
 
-#include "foundation/paradigm.hpp"
-#include "foundation/logical.decl.hpp"
-
-#include "interval/interval.decl.hpp"
-#include "geometry/box.decl.hpp"
-
 namespace Ariadne {
 
-
-template<class X> class Point;
+template<class X>
+class Point;
 
 } // namespace Ariadne
 
