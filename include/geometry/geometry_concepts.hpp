@@ -37,6 +37,7 @@
 
 namespace Ariadne {
 
+/** @brief Compile-time traits for set. */
 template<class T>
 struct SetTraits;
 template<class T>

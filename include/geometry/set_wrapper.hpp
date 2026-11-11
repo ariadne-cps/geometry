@@ -57,11 +57,13 @@ template<class SET, class P, class T>
     requires ARegularLocatedSet<SET, P, T>
 class RegularLocatedSetWrapper;
 
+/** @brief Adapter exposing open set. */
 template<class SET, class P, class T>
     requires AnOpenSet<SET, P, T>
 class OpenSetWrapper
     : public virtual OpenSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -69,21 +71,30 @@ class OpenSetWrapper
     using typename OpenSetInterface<P, T>::BasicSetType;
 
     using SET::SET;
+    /** @brief Construct a \c OpenSetWrapper from set. */
     explicit OpenSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual OpenSetInterface<P, T>* clone() const final { return new OpenSetWrapper<SET, P, T>(this->base()); }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Test whether the sets overlap. */
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bs) const final { return this->base().overlaps(bs); }
+    /** @brief Test whether the first set covers the second. */
     virtual LowerKleeneanType<P> covers(const BasicSetType& bs) const final { return this->base().covers(bs); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, OpenSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Adapter exposing closed set. */
 template<class SET, class P, class T>
     requires AClosedSet<SET, P, T>
 class ClosedSetWrapper
     : public virtual ClosedSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -91,20 +102,28 @@ class ClosedSetWrapper
     using typename ClosedSetInterface<P, T>::BasicSetType;
 
     using SET::SET;
+    /** @brief Construct a \c ClosedSetWrapper from set. */
     explicit ClosedSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual ClosedSetInterface<P, T>* clone() const final { return new ClosedSetWrapper<SET, P, T>(this->base()); }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Test whether the sets are separated. */
     virtual LowerKleeneanType<P> separated(const BasicSetType& bs) const final { return this->base().separated(bs); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, ClosedSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Adapter exposing overt set. */
 template<class SET, class P, class T>
     requires AnOvertSet<SET, P, T>
 class OvertSetWrapper
     : public virtual OvertSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -112,20 +131,28 @@ class OvertSetWrapper
     using typename OvertSetInterface<P, T>::BasicSetType;
 
     using SET::SET;
+    /** @brief Construct a \c OvertSetWrapper from set. */
     explicit OvertSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual OvertSetInterface<P, T>* clone() const final { return new OvertSetWrapper<SET, P, T>(this->base()); }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Test whether the sets overlap. */
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bs) const final { return this->base().overlaps(bs); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, OvertSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Adapter exposing compact set. */
 template<class SET, class P, class T>
     requires ACompactSet<SET, P, T>
 class CompactSetWrapper
     : public virtual CompactSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -134,22 +161,32 @@ class CompactSetWrapper
     using typename CompactSetInterface<P, T>::BoundingSetType;
 
     using SET::SET;
+    /** @brief Construct a \c CompactSetWrapper from set. */
     explicit CompactSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual CompactSetInterface<P, T>* clone() const final { return new CompactSetWrapper<SET, P, T>(this->base()); }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Return a box enclosing the set. */
     virtual BoundingSetType bounding_box() const final { return static_cast<BoundingSetType>(this->base().bounding_box()); }
+    /** @brief Test whether the first set lies inside the second. */
     virtual LowerKleeneanType<P> inside(const BasicSetType& bs) const final { return this->base().inside(bs); }
+    /** @brief Test whether the sets are separated. */
     virtual LowerKleeneanType<P> separated(const BasicSetType& bs) const final { return this->base().separated(bs); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, CompactSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Adapter exposing regular set. */
 template<class SET, class P, class T>
     requires ARegularSet<SET, P, T>
 class RegularSetWrapper
     : public virtual RegularSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -157,22 +194,32 @@ class RegularSetWrapper
     using typename RegularSetInterface<P, T>::BasicSetType;
 
     using SET::SET;
+    /** @brief Construct a \c RegularSetWrapper from set. */
     explicit RegularSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual RegularSetInterface<P, T>* clone() const final { return new RegularSetWrapper<SET, P, T>(this->base()); }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Test whether the sets overlap. */
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bs) const final { return this->base().overlaps(bs); }
+    /** @brief Test whether the first set covers the second. */
     virtual LowerKleeneanType<P> covers(const BasicSetType& bs) const final { return this->base().covers(bs); }
+    /** @brief Test whether the sets are separated. */
     virtual LowerKleeneanType<P> separated(const BasicSetType& bs) const final { return this->base().separated(bs); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, RegularSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Adapter exposing located set. */
 template<class SET, class P, class T>
     requires ALocatedSet<SET, P, T>
 class LocatedSetWrapper
     : public virtual LocatedSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -181,23 +228,34 @@ class LocatedSetWrapper
     using typename LocatedSetInterface<P, T>::BoundingSetType;
 
     using SET::SET;
+    /** @brief Construct a \c LocatedSetWrapper from set. */
     LocatedSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual LocatedSetInterface<P, T>* clone() const final { return new LocatedSetWrapper<SET, P, T>(this->base()); }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Test whether the sets overlap. */
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bs) const final { return this->base().overlaps(bs); }
+    /** @brief Test whether the sets are separated. */
     virtual LowerKleeneanType<P> separated(const BasicSetType& bs) const final { return this->base().separated(bs); }
+    /** @brief Test whether the first set lies inside the second. */
     virtual LowerKleeneanType<P> inside(const BasicSetType& bs) const final { return this->base().inside(bs); }
+    /** @brief Return a box enclosing the set. */
     virtual BoundingSetType bounding_box() const final { return static_cast<BoundingSetType>(this->base().bounding_box()); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, LocatedSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Adapter exposing regular located set. */
 template<class SET, class P, class T>
     requires ARegularLocatedSet<SET, P, T>
 class RegularLocatedSetWrapper
     : public virtual RegularLocatedSet<P, T>::Interface,
       public SET {
+    /** @brief Return the underlying base object. */
     SET const& base() const { return *this; }
 
   public:
@@ -206,47 +264,65 @@ class RegularLocatedSetWrapper
     using typename RegularLocatedSetInterface<P, T>::BoundingSetType;
 
     using SET::SET;
+    /** @brief Construct a \c RegularLocatedSetWrapper from set. */
     RegularLocatedSetWrapper(SET const& set) : SET(set) {}
+    /** @brief Write the value to the output stream. */
     virtual OutputStream& _write(OutputStream& os) const final override { return os << this->base(); }
+    /** @brief Return a dynamically allocated copy preserving the concrete type. */
     virtual RegularLocatedSetInterface<P, T>* clone() const final {
         return new RegularLocatedSetWrapper<SET, P, T>(this->base());
     }
+    /** @brief Return the dimension. */
     virtual DimensionType dimension() const final override { return this->base().dimension(); }
+    /** @brief Test whether the sets overlap. */
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bs) const final { return this->base().overlaps(bs); }
+    /** @brief Test whether the first set covers the second. */
     virtual LowerKleeneanType<P> covers(const BasicSetType& bs) const final { return this->base().covers(bs); }
+    /** @brief Test whether the sets are separated. */
     virtual LowerKleeneanType<P> separated(const BasicSetType& bs) const final { return this->base().separated(bs); }
+    /** @brief Test whether the first set lies inside the second. */
     virtual LowerKleeneanType<P> inside(const BasicSetType& bs) const final { return this->base().inside(bs); }
+    /** @brief Return a box enclosing the set. */
     virtual BoundingSetType bounding_box() const final { return static_cast<BoundingSetType>(this->base().bounding_box()); }
     // Needed to prevent ambiguity
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, RegularLocatedSetWrapper<SET, P, T> ops) { return os << ops.base(); }
 };
 
+/** @brief Compile-time trait for wrapper. */
 template<class S, class C>
 struct WrapperTrait;
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, OpenSet<P, T>> {
     typedef OpenSetWrapper<S, P, T> Type;
 };
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, ClosedSet<P, T>> {
     typedef ClosedSetWrapper<S, P, T> Type;
 };
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, OvertSet<P, T>> {
     typedef OvertSetWrapper<S, P, T> Type;
 };
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, CompactSet<P, T>> {
     typedef CompactSetWrapper<S, P, T> Type;
 };
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, RegularSet<P, T>> {
     typedef RegularSetWrapper<S, P, T> Type;
 };
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, LocatedSet<P, T>> {
     typedef LocatedSetWrapper<S, P, T> Type;
 };
+/** @brief Compile-time trait for wrapper. */
 template<class S, class P, class T>
 struct WrapperTrait<S, RegularLocatedSet<P, T>> {
     typedef RegularLocatedSetWrapper<S, P, T> Type;
@@ -255,6 +331,7 @@ struct WrapperTrait<S, RegularLocatedSet<P, T>> {
 template<class S, class C>
 using SetWrapperType = typename WrapperTrait<S, C>::Type;
 
+/** @brief Wrap the concrete object in the selected polymorphic interface. */
 template<class C, class S>
 C wrap(S s) {
     if constexpr (DerivedFrom<S, typename C::Interface>) {
@@ -300,6 +377,7 @@ template<class S>
 RegularLocatedSet<P, T>::RegularLocatedSet(const S& s)
     : RegularLocatedSet(wrap<RegularLocatedSet<P, T>>(s)) {}
 
+/** @brief Wrap the set in the open-set interface. */
 template<class SET>
 OpenSet<ValidatedTag, Real> wrap_open(SET const& s) {
     using P = ValidatedTag;

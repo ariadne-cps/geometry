@@ -35,6 +35,7 @@ namespace Ariadne {
 
 template<class IVL>
 class Box;
+/** @brief Box whose coordinates are identified by variables. */
 template<class IVL>
 class VariablesBox;
 
@@ -85,6 +86,7 @@ typedef FloatDPLowerBox LowerBoxType;
 typedef FloatDPApproximateBox ApproximateBoxType;
 //!@}
 
+/** @brief Cartesian product of intervals represented as a geometric set. */
 template<class IVL>
 class BoxSet;
 //!@{

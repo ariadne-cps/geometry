@@ -36,6 +36,7 @@ namespace Ariadne {
 
 enum class SplitPart : char;
 
+/** @brief Return the index of an entry with maximum absolute value. */
 inline SizeType irmax(const ExactBoxType& bx) {
     FloatDP dmax(0.0_x, dp);
     SizeType imax = 0;
@@ -49,10 +50,12 @@ inline SizeType irmax(const ExactBoxType& bx) {
     return imax;
 }
 
+/** @brief Return the midpoint. */
 inline FloatDP mid(FloatDP l, FloatDP u) {
     return FloatDP(med(approx, l, u));
 }
 
+/** @brief Split the domain or model along the selected coordinate. */
 inline ExactBoxType split(const ExactBoxType& bx, SizeType i, SplitPart lr) {
     ExactBoxType result(bx);
     ExactIntervalType& ivl = result[i];
@@ -71,6 +74,7 @@ inline ExactBoxType split(const ExactBoxType& bx, SizeType i, SplitPart lr) {
     return result;
 }
 
+/** @brief Split the domain or model along the selected coordinate. */
 inline Pair<ExactBoxType, ExactBoxType> split(const ExactBoxType& bx, SizeType i) {
     Pair<ExactBoxType, ExactBoxType> result(bx, bx);
     FloatDP c = mid(bx[i].lower_bound(), bx[i].upper_bound());
@@ -79,15 +83,18 @@ inline Pair<ExactBoxType, ExactBoxType> split(const ExactBoxType& bx, SizeType i
     return result;
 }
 
+/** @brief Split the domain or model along the selected coordinate. */
 inline ExactBoxType split(const ExactBoxType& bx, SplitPart lr) {
     SizeType i = irmax(bx);
     return split(bx, i, lr);
 }
 
+/** @brief Split the domain or model along the selected coordinate. */
 inline Pair<ExactBoxType, ExactBoxType> split(const ExactBoxType& bx) {
     return split(bx, irmax(bx));
 }
 
+/** @brief Test whether the function image is separated from the target set. */
 template<class F>
 ValidatedKleenean
     image_separated(const ExactBoxType& d, const F& f, const ExactBoxType& b, const RawFloatDP& eps) {
@@ -111,6 +118,7 @@ ValidatedKleenean
     }
 }
 
+/** @brief Test whether the function image lies inside the target set. */
 template<class F>
 ValidatedKleenean
     image_inside(const ExactBoxType& d, const F& f, const ExactBoxType& b, const RawFloatDP& eps) {
@@ -134,6 +142,7 @@ ValidatedKleenean
     }
 }
 
+/** @brief Remove set entries contained in other entries. */
 template<class DS>
 DS remove_subsets(const DS& ls) {
     DS result;
@@ -147,6 +156,7 @@ DS remove_subsets(const DS& ls) {
     }
 }
 
+/** @brief Remove set entries containing other entries. */
 template<class DS>
 DS remove_supersets(const DS& ls) {
     DS result;

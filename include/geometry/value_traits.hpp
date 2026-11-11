@@ -37,8 +37,10 @@
 
 namespace Ariadne {
 
+/** @brief Compile-time traits for linear algebra. */
 template<template<class> class T>
 struct LinearAlgebraTraits;
+/** @brief Compile-time traits for linear algebra. */
 template<>
 struct LinearAlgebraTraits<Scalar> {
     template<class X>
@@ -47,6 +49,7 @@ struct LinearAlgebraTraits<Scalar> {
     typedef SizeOne SizeType;
     typedef IndexZero IndexType;
 };
+/** @brief Compile-time traits for linear algebra. */
 template<>
 struct LinearAlgebraTraits<Vector> {
     template<class X>
@@ -55,6 +58,7 @@ struct LinearAlgebraTraits<Vector> {
     typedef Ariadne::SizeType SizeType;
     typedef Ariadne::SizeType IndexType;
 };
+/** @brief Compile-time traits for linear algebra. */
 template<>
 struct LinearAlgebraTraits<Matrix> {
     template<class X>
@@ -67,10 +71,13 @@ using ScalarTraits = LinearAlgebraTraits<Scalar>;
 using VectorTraits = LinearAlgebraTraits<Vector>;
 using MatrixTraits = LinearAlgebraTraits<Matrix>;
 
+/** @brief Compile-time traits for value. */
 template<class R>
 struct ValueTraits;
+/** @brief Compile-time traits for value. */
 template<>
 struct ValueTraits<Scalar<Real>> : LinearAlgebraTraits<Scalar> {};
+/** @brief Compile-time traits for value. */
 template<template<class> class T>
 struct ValueTraits<T<Real>> : LinearAlgebraTraits<T> {};
 

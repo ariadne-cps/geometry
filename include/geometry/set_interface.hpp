@@ -46,6 +46,7 @@ class Vector;
 
 using DimensionOne = SizeOne;
 
+/** @brief Compile-time traits for element. */
 template<class S>
 struct ElementTraits;
 template<class S>
@@ -64,12 +65,14 @@ using BasicSetType = typename SetTraits<T>::BasicSetType;
 template<class T>
 using BoundingSetType = typename SetTraits<T>::BoundingSetType;
 
+/** @brief Compile-time traits for set. */
 template<>
 struct SetTraits<RealScalar> : public ScalarTraits {
     typedef DimensionOne DimensionType;
     typedef FloatDPExactInterval BasicSetType;
     typedef FloatDPUpperInterval BoundingSetType;
 };
+/** @brief Compile-time traits for set. */
 template<>
 struct SetTraits<RealVector> : public VectorTraits {
     typedef Ariadne::DimensionType DimensionType;
@@ -86,36 +89,53 @@ class Box;
 typedef FloatDPExactBox ExactBoxType;
 typedef FloatDPUpperBox UpperBoxType;
 
+/** @brief Predicate testing overlap of geometric sets. */
 struct Overlap {
+    /** @brief Return the operation or variant discriminator. */
     constexpr const char* code() const { return "overlap"; }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S>
     decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.overlaps(bx, eff); }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S1, class S2>
     decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return overlap(s1, s2, eff); }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S1, class S2>
     decltype(auto) operator()(S1 const& s1, S2 const& s2) const { return overlap(s1, s2); }
 };
 
+/** @brief Predicate testing separation of geometric sets. */
 struct Separated {
+    /** @brief Return the operation or variant discriminator. */
     constexpr const char* code() const { return "separated"; }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S>
     decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.separated(bx, eff); }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S1, class S2>
     decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return separated(s1, s2, eff); }
 };
 
+/** @brief Predicate testing containment in the interior of a set. */
 struct Inside {
+    /** @brief Return the operation or variant discriminator. */
     constexpr const char* code() const { return "inside"; }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S>
     decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.inside(bx, eff); }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S1, class S2>
     decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return inside(s1, s2, eff); }
 };
 
+/** @brief Predicate testing whether one set covers another. */
 struct Covers {
+    /** @brief Return the operation or variant discriminator. */
     constexpr const char* code() const { return "covers"; }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S>
     decltype(auto) operator()(const S& s, const ExactBoxType& bx, Effort eff) const { return s.covers(bx, eff); }
+    /** @brief Apply the callable to the supplied arguments. */
     template<class S1, class S2>
     decltype(auto) operator()(S1 const& s1, S2 const& s2, Effort eff) const { return inside(s2, s1, eff); }
 };
@@ -176,6 +196,7 @@ class OvertSetInterface
     virtual LowerKleeneanType<P> overlaps(const BasicSetType& bx) const = 0;
     //! \brief Tests if \a ovs overlaps \a ops, to a tolerance of \a eps.
     friend LowerKleeneanType<P> overlap(const OvertSetInterface<P, T>& ovs, const OpenSetInterface<P, T>& ops);
+    /** @brief Test whether the sets overlap. */
     friend LowerKleeneanType<ValidatedTag> overlap(const OvertSetInterface<ValidatedTag, T>& ovs, const OpenSetInterface<ValidatedTag, T>& ops, const RawFloatDP& eps);
 };
 
@@ -193,9 +214,11 @@ class OpenSetInterface
     virtual LowerKleeneanType<P> covers(const BasicSetType& bx) const = 0;
     //! \brief Tests if \a ovs overlaps \a ops, to a tolerance of \a eps.
     friend LowerKleeneanType<P> overlap(const OvertSetInterface<P, T>& ovs, const OpenSetInterface<P, T>& ops);
+    /** @brief Test whether the sets overlap. */
     friend LowerKleeneanType<ValidatedTag> overlap(const OvertSetInterface<ValidatedTag, T>& ovs, const OpenSetInterface<ValidatedTag, T>& ops, const RawFloatDP& eps);
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
     friend LowerKleeneanType<P> inside(const CompactSetInterface<P, T>& ls, const OpenSetInterface<P, T>& rs);
+    /** @brief Test whether the first set lies inside the second. */
     friend LowerKleeneanType<ValidatedTag> inside(const CompactSetInterface<ValidatedTag, T>& ls, const OpenSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
 };
 
@@ -213,6 +236,7 @@ class ClosedSetInterface
     virtual LowerKleeneanType<P> separated(const BasicSetType& bx) const = 0;
     //! \brief Tests if \a cps is disjoint from \a cls, to a tolerance of \a eps.
     friend LowerKleeneanType<P> separated(const CompactSetInterface<P, T>& cps, const ClosedSetInterface<P, T>& cls);
+    /** @brief Test whether the sets are separated. */
     friend LowerKleeneanType<ValidatedTag> separated(const CompactSetInterface<ValidatedTag, T>& cps, const ClosedSetInterface<ValidatedTag, T>& cls, const RawFloatDP& eps);
 };
 
@@ -228,9 +252,11 @@ class CompactSetInterface
     // virtual ValidatedSierpinskian empty() const = 0;
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
     friend LowerKleeneanType<P> inside(const CompactSetInterface<P, T>& ls, const OpenSetInterface<P, T>& rs);
+    /** @brief Test whether the first set lies inside the second. */
     friend LowerKleeneanType<ValidatedTag> inside(const CompactSetInterface<ValidatedTag, T>& ls, const OpenSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a cps is disjoint from \a cls, to a tolerance of \a eps.
     friend LowerKleeneanType<P> separated(const CompactSetInterface<P, T>& cps, const ClosedSetInterface<P, T>& cls);
+    /** @brief Test whether the sets are separated. */
     friend LowerKleeneanType<ValidatedTag> separated(const CompactSetInterface<ValidatedTag, T>& cps, const ClosedSetInterface<ValidatedTag, T>& cls, const RawFloatDP& eps);
 };
 
@@ -245,12 +271,15 @@ class RegularSetInterface
 
     //! \brief Tests if \a ls overlaps \a rs, to a tolerance of \a eps.
     friend KleeneanType<P> overlap(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    /** @brief Test whether the sets overlap. */
     friend KleeneanType<ValidatedTag> overlap(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
     friend KleeneanType<P> inside(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    /** @brief Test whether the first set lies inside the second. */
     friend KleeneanType<ValidatedTag> inside(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is disjoint from \a rs, to a tolerance of \a eps.
     friend KleeneanType<P> separated(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    /** @brief Test whether the sets are separated. */
     friend KleeneanType<ValidatedTag> separated(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
 };
 
@@ -265,12 +294,15 @@ class LocatedSetInterface
 
     //! \brief Tests if \a ls overlaps \a rs, to a tolerance of \a eps.
     friend KleeneanType<P> overlap(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    /** @brief Test whether the sets overlap. */
     friend KleeneanType<ValidatedTag> overlap(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is a inside of \a rs, to a tolerance of \a eps.
     friend KleeneanType<P> inside(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    /** @brief Test whether the first set lies inside the second. */
     friend KleeneanType<ValidatedTag> inside(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
     //! \brief Tests if \a ls is disjoint from \a rs, to a tolerance of \a eps.
     friend KleeneanType<P> separated(const LocatedSetInterface<P, T>& ls, const RegularSetInterface<P, T>& rs);
+    /** @brief Test whether the sets are separated. */
     friend KleeneanType<ValidatedTag> separated(const LocatedSetInterface<ValidatedTag, T>& ls, const RegularSetInterface<ValidatedTag, T>& rs, const RawFloatDP& eps);
 };
 
@@ -311,7 +343,9 @@ class EuclideanSpace {
     typedef RegularLocatedSetInterface<P, T> RegularLocatedSetInterfaceType;
 
   public:
+    /** @brief Construct a \c EuclideanSpace from d. */
     EuclideanSpace(const SizeType& d) : _dimension(d) {}
+    /** @brief Return the dimension. */
     const SizeType& dimension() const { return this->_dimension; }
 
   private:

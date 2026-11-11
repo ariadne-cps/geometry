@@ -35,6 +35,7 @@
 
 namespace Ariadne {
 
+/** @brief Reference type specifying the requirements of regular located set. */
 template<class P, class T>
 class RegularLocatedSetArchetype {
   public:
@@ -42,13 +43,20 @@ class RegularLocatedSetArchetype {
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
 
+    /** @brief Return the dimension. */
     auto dimension() const -> DimensionType;
+    /** @brief Return a box enclosing the set. */
     auto bounding_box() const -> BoundingSetType;
+    /** @brief Test whether the first set covers the second. */
     auto covers(BasicSetType) const -> LowerLogicalType<P>;
+    /** @brief Test whether the sets are separated. */
     auto separated(BasicSetType) const -> LowerLogicalType<P>;
+    /** @brief Test whether the sets overlap. */
     auto overlaps(BasicSetType) const -> LowerLogicalType<P>;
+    /** @brief Test whether the first set lies inside the second. */
     auto inside(BasicSetType) const -> LowerLogicalType<P>;
 
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, const RegularLocatedSetArchetype<P, T>& set);
 };
 

@@ -34,13 +34,16 @@
 
 namespace Ariadne {
 
+/** @brief Ordering predicate using lower upper bound order. */
 struct LowerUpperBoundLess {
+    /** @brief Apply the callable to the supplied arguments. */
     template<class U>
     decltype(auto) operator()(const Interval<U>& ivl1, const Interval<U>& ivl2) const {
         return ivl1.lower_bound() < ivl2.lower_bound() or (ivl1.lower_bound() == ivl2.lower_bound() and ivl1.upper_bound() < ivl2.upper_bound());
     }
 };
 
+/** @brief One-dimensional set represented as a union of intervals. */
 template<class U>
 class UnionOfIntervals {
   private:
@@ -55,15 +58,18 @@ class UnionOfIntervals {
     typedef typename List<Interval<U>>::Iterator Iterator;
     typedef typename List<Interval<U>>::ConstIterator ConstIterator;
 
+    /** @brief Construct a \c UnionOfIntervals from ivls. */
     explicit UnionOfIntervals(const List<Interval<U>>& ivls) : _data(ivls) {
         this->_sort();
         this->_combine();
     }
 
+    /** @brief Construct a \c UnionOfIntervals from ivls. */
     template<class UU>
         requires Constructible<U, UU>
     UnionOfIntervals(UnionOfIntervals<UU> ivls)
         : _data(ivls._data) {}
+    /** @brief Construct a \c UnionOfIntervals from ivls, prs. */
     template<class UU, class... PRS>
         requires Constructible<U, UU, PRS...>
     UnionOfIntervals(List<Interval<UU>> ivls, PRS... prs)
@@ -72,11 +78,14 @@ class UnionOfIntervals {
         this->_combine();
     }
 
+    /** @brief Construct a \c UnionOfIntervals from ivls. */
     UnionOfIntervals(InitializerList<Interval<U>> ivls) : UnionOfIntervals(List<Interval<U>>(ivls)) {}
+    /** @brief Construct a \c UnionOfIntervals from ivls, prs. */
     template<class... PRS>
         requires Constructible<U, Dyadic, PRS...>
     UnionOfIntervals(InitializerList<Interval<Dyadic>> ivls, PRS... prs) : UnionOfIntervals(List<Interval<Dyadic>>(ivls), prs...) {}
 
+    /** @brief Construct a compatible object from the supplied value and characteristics. */
     UnionOfIntervals<U> create(IntervalDomainType bs) const {
         static_assert(Constructible<Interval<U>, IntervalDomainType> or Assignable<Interval<U>, DyadicInterval>);
         if constexpr (Constructible<Interval<U>, IntervalDomainType>) {
@@ -89,41 +98,60 @@ class UnionOfIntervals {
         }
     }
 
+    /** @brief Return the number of elements. */
     SizeType size() const { return this->_data.size(); }
+    /** @brief Return an iterator to the first element. */
     Iterator begin() { return this->_data.begin(); }
+    /** @brief Return an iterator to the first element. */
     ConstIterator begin() const { return this->_data.begin(); }
+    /** @brief Return the past-the-end iterator. */
     ConstIterator end() const { return this->_data.end(); }
 
+    /** @brief Return the dimension. */
     SizeOne dimension() const { return SizeOne(); }
+    /** @brief Test whether the sets are separated. */
     Bool separated(IntervalDomainType bs) const { return not intersect(*this, this->create(bs)); }
+    /** @brief Test whether the sets overlap. */
     Bool overlaps(IntervalDomainType bs) const { return intersect(*this, this->create(bs)); }
+    /** @brief Test whether the first set covers the second. */
     Bool covers(IntervalDomainType bs) const { return subset(this->create(bs), *this); }
+    /** @brief Test whether the first set lies inside the second. */
     Bool inside(IntervalDomainType bs) const { return subset(*this, this->create(bs)); }
+    /** @brief Return a box enclosing the set. */
     Interval<U> bounding_box() const;
 
+    /** @brief Return the measure of the set. */
     MeasureType measure() const;
+    /** @brief Return the measure of the set. */
     friend MeasureType measure(const UnionOfIntervals<U>& ivls) { return ivls.measure(); }
 
+    /** @brief Return the intersection of the operands. */
     friend UnionOfIntervals<U> intersection(const UnionOfIntervals<U>& ivls1, const IntervalDomainType& ivl2) {
         return intersection(ivls1, ivls1.create(ivl2));
     }
+    /** @brief Return the intersection of the operands. */
     friend UnionOfIntervals<U> intersection(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
         return UnionOfIntervals<U>::_intersection(ivls1, ivls2);
     }
+    /** @brief Join the operands in their natural order. */
     friend UnionOfIntervals<U> join(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
         return UnionOfIntervals<U>::_join(ivls1, ivls2);
     }
+    /** @brief Intersect with the supplied set. */
     friend Bool intersect(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
         return UnionOfIntervals<U>::_intersect(ivls1, ivls2);
     }
+    /** @brief Test whether the first set is contained in the second. */
     friend Bool subset(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2) {
         return UnionOfIntervals<U>::_subset(ivls1, ivls2);
     }
+    /** @brief Write the value to the output stream. */
     friend OutputStream& operator<<(OutputStream& os, const UnionOfIntervals<U>& ivls) { return os << ivls._data; }
 
   private:
     // With no interval supplying a precision, use the numeric type's
     // default characteristics for the zero measure of an empty union.
+    /** @brief Return a zero measure with compatible characteristics. */
     static MeasureType _zero_measure() {
         if constexpr (Constructible<MeasureType, Nat>) {
             return MeasureType(0u);
@@ -133,14 +161,21 @@ class UnionOfIntervals {
             return MeasureType(0u, U::get_default_precision());
         }
     }
+    /** @brief Return the intersection of the operands. */
     static UnionOfIntervals<U> _intersection(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    /** @brief Join the operands in their natural order. */
     static UnionOfIntervals<U> _join(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    /** @brief Intersect with the supplied set. */
     static Bool _intersect(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    /** @brief Test whether the first set is contained in the second. */
     static Bool _subset(const UnionOfIntervals<U>& ivls1, const UnionOfIntervals<U>& ivls2);
+    /** @brief Sort the stored entries. */
     Void _sort();
+    /** @brief Combine the operands over their respective arguments. */
     Void _combine();
 };
 
+/** @brief Return the interior. */
 template<class U>
 UnionOfIntervals<U> interior(UnionOfIntervals<U> ivls, NegationType<U> eps) {
     List<Interval<U>> rivls;

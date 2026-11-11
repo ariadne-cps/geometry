@@ -39,23 +39,32 @@
 
 namespace Ariadne {
 
+/** @brief Common interval-set storage and operations. */
 template<class U>
 class IntervalSetBase : public Interval<U> {
   protected:
+    /** @brief Move-construct the object from the supplied instance. */
     IntervalSetBase(Interval<U>&& ivl) : Interval<U>(ivl) {}
+    /** @brief Test whether the first set lies inside the second. */
     template<class UU>
     decltype(auto) _inside(const Interval<UU>& ivl) const { return inside(*this, ivl); }
+    /** @brief Test whether the sets are separated. */
     template<class UU>
     decltype(auto) _separated(const Interval<UU>& ivl) const { return separated(*this, ivl); }
 };
 
+/** @brief One-dimensional set represented by an interval. */
 template<class U>
 class IntervalSet : public IntervalSetBase<U> {
   public:
+    /** @brief Move-construct the object from the supplied instance. */
     IntervalSet(Interval<U>&& ivl) : IntervalSetBase<U>(std::move(ivl)) {}
+    /** @brief Return a box enclosing the set. */
     const Interval<U>& bounding_box() const { return *this; }
+    /** @brief Test whether the first set lies inside the second. */
     template<class UU>
     decltype(auto) inside(const Interval<UU>& ivl) const { return this->_inside(ivl); }
+    /** @brief Test whether the sets are separated. */
     template<class UU>
     decltype(auto) separated(const Interval<UU>& ivl) const { return this->_separated(ivl); }
 };

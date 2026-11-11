@@ -61,6 +61,7 @@ class BoundedSet
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
 
     using Handle<const BoundedSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c BoundedSet from s. */
     template<class S>
         requires ABoundedSet<S, P, T>
     BoundedSet(const S& s);
@@ -84,6 +85,7 @@ class OvertSet
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
 
     using Handle<const OvertSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c OvertSet from s. */
     template<class S>
         requires AnOvertSet<S, P, T>
     OvertSet(const S& s);
@@ -103,6 +105,7 @@ class OpenSet
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
 
     using Handle<const OpenSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c OpenSet from s. */
     template<class S>
         requires AnOpenSet<S, P, T>
     OpenSet(const S& s);
@@ -125,6 +128,7 @@ class ClosedSet
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
 
     using Handle<const ClosedSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c ClosedSet from s. */
     template<class S>
         requires AClosedSet<S, P, T>
     ClosedSet(const S& s);
@@ -146,6 +150,7 @@ class CompactSet
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
 
     using Handle<const CompactSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c CompactSet from s. */
     template<class S>
         requires ACompactSet<S, P, T>
     CompactSet(const S& s);
@@ -168,6 +173,7 @@ class RegularSet
     typedef typename SetTraits<T>::BasicSetType BasicSetType;
 
     using Handle<const RegularSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c RegularSet from s. */
     template<class S>
         requires ARegularSet<S, P, T>
     RegularSet(const S& s);
@@ -191,6 +197,7 @@ class LocatedSet
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
 
     using Handle<const LocatedSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c LocatedSet from s. */
     template<class S>
         requires ALocatedSet<S, P, T>
     LocatedSet(const S& s);
@@ -216,6 +223,7 @@ class RegularLocatedSet
     typedef typename SetTraits<T>::BoundingSetType BoundingSetType;
 
     using Handle<const RegularLocatedSetInterface<P, T>>::Handle;
+    /** @brief Construct a \c RegularLocatedSet from s. */
     template<class S>
         requires ARegularLocatedSet<S, P, T>
     RegularLocatedSet(const S& s);

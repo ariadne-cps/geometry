@@ -63,6 +63,7 @@ typedef ExactPoint<FloatDP> ExactPointType;
 //! A point in Euclidean space.
 template<class X>
 class Point : public Vector<X> {
+    /** @brief Construct default coordinate from the supplied arguments. */
     static X _make_default_coordinate();
 
   public:
@@ -73,10 +74,13 @@ class Point : public Vector<X> {
     template<class... PRS>
         requires Constructible<X, Nat, PRS...>
     explicit Point(SizeType n, PRS... prs) : Vector<RealType>(n, X(0u, prs...)) {}
+    /** @brief Construct a \c Point from v. */
     Point(const Vector<RealType>& v) : Vector<RealType>(v) {}
+    /** @brief Copy-construct the object from the supplied instance. */
     template<class T>
         requires Convertible<T, X>
     Point(const Point<T>& pt) : Vector<RealType>(pt.vector()) {}
+    /** @brief Construct a \c Point from pt, prs. */
     template<class Y, class... PRS>
         requires Constructible<X, Y, PRS...>
     Point(const Point<Y>& pt, PRS... prs) : Vector<RealType>(pt.vector(), prs...) {}
@@ -109,8 +113,10 @@ class Point : public Vector<X> {
     //! An explicit cast to a float vector. Useful to prevent ambiguous function overloads.
     const Vector<RealType>& vector() const { return *this; }
 
+    /** @brief Return the centre of the enclosure. */
     Vector<RealType> centre() const { return *this; }
 
+    /** @brief Return the Cartesian product. */
     friend Point<X> product(const Point<X>& pt1, const Point<X>& pt2) {
         return Point<X>(join(pt1.vector(), pt2.vector()));
     }
@@ -120,9 +126,11 @@ class Point : public Vector<X> {
         return os << static_cast<const Vector<RealType>&>(*this);
     }
 
+    /** @brief Return a box enclosing the set. */
     FloatDPUpperBox bounding_box() const;
 };
 
+/** @brief Return the distance between the operands. */
 template<class X>
 inline X distance(const Point<X>& pt1, const Point<X>& pt2) {
     ARIADNE_PRECONDITION(pt1.dimension() == pt2.dimension());
@@ -136,6 +144,7 @@ inline X distance(const Point<X>& pt1, const Point<X>& pt2) {
     return sqrt(result);
 }
 
+/** @brief Construct a \c Point with the specified characteristics. */
 template<class X>
 Point(Vector<X>) -> Point<X>;
 

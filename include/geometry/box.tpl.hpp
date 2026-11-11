@@ -53,6 +53,7 @@ auto Box<I>::is_bounded() const -> decltype(declval<IntervalType>().is_bounded()
     return res;
 }
 
+/** @brief Return the index of an entry with maximum absolute value. */
 template<class I>
 SizeType irmax(const Box<I>& bx) {
     SizeType imw(0);
