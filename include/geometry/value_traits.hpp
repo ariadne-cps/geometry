@@ -6,24 +6,28 @@
  ****************************************************************************/
 
 /*
- *  This file is part of Ariadne.
+ *  This file is part of Ariadne Geometry.
  *
- *  Ariadne is free software: you can redistribute it and/or modify
+ *  Ariadne Geometry is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  Ariadne is distributed in the hope that it will be useful,
+ *  Ariadne Geometry is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Ariadne.  If not, see <https://www.gnu.org/licenses/>.
+ *  along with Ariadne Geometry.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Common scalar/vector/matrix value traits shared by geometric sets and functions.
 // Geometry owns these declarations so it does not depend on Function.
+/** @file geometry/value_traits.hpp
+ *  @brief Scalar, vector, and matrix value traits for geometric objects.
+ */
+
 #ifndef ARIADNE_GEOMETRY_VALUE_TRAITS_HPP
 #define ARIADNE_GEOMETRY_VALUE_TRAITS_HPP
 
