@@ -34,8 +34,3 @@ cmake --install build-release --prefix /path/to/install
 ```
 
 The C++ library installs as `ariadne-geometry` together with the public headers and dependency bundle. With Python >= 3.11 and its development module, the build also creates an installable `pyariadne` extension containing Geometry and the lower-level Algebra/Interval/Numeric bindings.
-
-## Tutorials
-
-- C++: `tutorial/tutorial_geometry.cpp` (build separately against an installed Geometry library).
-- Python: `python/tutorial.py`.
